@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>منصة استئذاني - مدرسة ابتدائية إبن الهيثم (بنين)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Tajawal', sans-serif; }
+    .ltr { direction: ltr; unicode-bidi: embed; }
+    .inp { width: 100%; padding: .7rem; background: #fff; border: 1px solid #cbd5e1; border-radius: .75rem; font-size: .875rem; font-weight: 700; color: #1e293b; }
+    .inp:focus { outline: none; border-color: #059669; }
+    .lbl { display: block; font-size: .75rem; font-weight: 700; color: #334155; margin-bottom: .25rem; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased">
+
+  <!-- ==================== الترويسة الرئيسية ==================== -->
+  <header class="bg-emerald-800 text-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4 text-center md:text-right">
+        <div class="w-14 h-14 bg-white text-emerald-800 rounded-2xl flex items-center justify-center font-black text-2xl shadow-md border-2 border-emerald-400/40">🏫</div>
+        <div>
+          <div class="flex items-center gap-2 justify-center md:justify-start">
+            <span class="text-xs bg-emerald-700/80 text-emerald-200 px-2.5 py-0.5 rounded-full font-bold">وزارة التعليم 🇸🇦 تعليم حائل</span>
+          </div>
+          <h1 class="text-xl md:text-2xl font-black tracking-tight mt-0.5">مدرسة ابتدائية إبن الهيثم (بنين)</h1>
+          <p class="text-xs text-emerald-200 font-medium">منصة "استئذاني" الموحدة - نظام تنظيم خروج واستئذان الطلاب</p>
+        </div>
+      </div>
+      <nav class="bg-emerald-900/60 p-1.5 rounded-2xl flex items-center gap-1 border border-emerald-600/40">
+        <button id="tab-btn-parent" onclick="switchMainTab('parent')" class="px-5 py-2.5 rounded-xl font-black text-sm transition-all duration-200 bg-white text-emerald-900 shadow-md">👨‍👦 بوابة ولي الأمر</button>
+        <button id="tab-btn-admin" onclick="switchMainTab('admin')" class="px-5 py-2.5 rounded-xl font-black text-sm transition-all duration-200 text-white/90 hover:text-white hover:bg-emerald-800/60">🔒 لوحة إدارة المدرسة</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-8 w-full flex-1">
+
+    <!-- ======================================================== -->
+    <!-- 1️⃣ بوابة ولي الأمر                                       -->
+    <!-- ======================================================== -->
+    <section id="view-parent" class="max-w-xl mx-auto space-y-6">
+      <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 text-center">
+        <span class="inline-block px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-black mb-2">خدمة الاستئذان المعتمدة</span>
+        <h2 class="text-2xl font-black text-slate-800">طلب استئذان طالب</h2>
+        <p class="text-slate-500 text-sm mt-1">أهلاً بكم في المنصة الرسمية لمدرسة ابتدائية إبن الهيثم (بنين) بحائل. يرجى إدخال هويتكم للبدء.</p>
+      </div>
+
+      <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-lg border border-slate-200">
+
+        <!-- الخطوة 1 -->
+        <div id="parent-step-1" class="space-y-6">
+          <div>
+            <label class="block text-slate-700 font-black text-base sm:text-lg mb-2">رقم الهوية الوطنية لولي الأمر:</label>
+            <input type="text" id="parent-national-id" maxlength="10" inputmode="numeric" placeholder="1xxxxxxxxx"
+                   class="w-full p-4 sm:p-5 text-center text-2xl sm:text-3xl font-black tracking-widest bg-slate-50 border-2 border-slate-300 rounded-2xl focus:bg-white focus:border-emerald-600 focus:outline-none transition text-slate-800">
+            <p class="text-xs text-slate-400 mt-2 font-medium">💡 أدخل رقم الهوية المعتمد والمسجل في سجلات مدرسة ابتدائية إبن الهيثم (بنين).</p>
+          </div>
+          <button onclick="parentCheckIdentity()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black text-xl rounded-2xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2">
+            <span>إرسال رمز التحقق</span><span>📲</span>
+          </button>
+        </div>
+
+        <!-- الخطوة 2 -->
+        <div id="parent-step-2" class="space-y-6 hidden">
+          <div class="text-center space-y-2">
+            <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center text-2xl mx-auto font-black">📩</div>
+            <h3 class="text-lg font-black text-slate-800">أدخل رمز التحقق (OTP)</h3>
+            <p class="text-xs sm:text-sm text-slate-500">تم إرسال الرمز إلى رقم الجوال المسجل لدى المدرسة:</p>
+            <p id="parent-masked-phone" class="text-base font-black text-emerald-700 ltr"></p>
+            <p class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1 inline-block font-bold">عرض تجريبي: الرمز 123456</p>
+          </div>
+          <input type="text" id="parent-otp-input" maxlength="6" inputmode="numeric" placeholder="• • • • • •"
+                 class="w-full p-4 sm:p-5 text-center text-3xl font-black tracking-widest bg-slate-50 border-2 border-slate-300 rounded-2xl focus:bg-white focus:border-emerald-600 focus:outline-none transition text-slate-800">
+          <div class="space-y-2">
+            <button onclick="parentVerifyOtp()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black text-xl rounded-2xl shadow-lg shadow-emerald-600/30 transition">تأكيد الرمز والمتابعة 🔑</button>
+            <button onclick="parentBackToStep1()" class="w-full py-2.5 text-slate-500 hover:text-slate-800 font-bold text-xs transition">← تغيير رقم الهوية</button>
+          </div>
+        </div>
+
+        <!-- الخطوة 3 -->
+        <div id="parent-step-3" class="space-y-6 hidden">
+          <p id="parent-greeting" class="text-sm font-black text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2"></p>
+          <div class="border-b pb-4">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="text-lg font-black text-slate-800">حدد الطلاب المراد استئذانهم:</h3>
+                <p class="text-xs text-slate-500">اختر طالباً واحداً أو أكثر من القائمة</p>
+              </div>
+              <button onclick="parentToggleSelectAll()" id="btn-select-all" class="px-3 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl font-bold text-xs hover:bg-emerald-100 transition">تحديد الكل ✓</button>
+            </div>
+            <div id="parent-students-list" class="space-y-3"></div>
+          </div>
+
+          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+            <div class="flex items-center gap-2"><span class="text-base">📝</span><h4 class="font-black text-sm text-slate-700">بيانات استلام الطالب:</h4></div>
+            <div>
+              <label class="lbl">من سيستلم الطالب؟</label>
+              <select id="parent-pickup-select" onchange="onPickupSelectChange()" class="inp"></select>
+              <input type="text" id="parent-pickup-person" placeholder="اكتب اسم المستلم الكامل" class="inp mt-2 hidden">
+              <p id="pickup-warning" class="hidden text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2 mt-2">⚠️ المستلم غير مسجل ضمن المفوَّضين، وستتحقق الإدارة من هويته عند البوابة.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div><label class="lbl">وقت الاستئذان التقريبي:</label><input type="time" id="parent-pickup-time" class="inp"></div>
+              <div><label class="lbl">نوع ولون السيارة (إن وُجد):</label><input type="text" id="parent-car-info" placeholder="مثال: يوكن أسود" class="inp"></div>
+            </div>
+          </div>
+
+          <button onclick="parentSubmitRequest()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black text-xl rounded-2xl shadow-xl shadow-emerald-600/30 transition flex items-center justify-center gap-2">
+            <span>تأكيد وإرسال طلب الاستئذان للمدرسة</span><span>🚀</span>
+          </button>
+        </div>
+
+        <!-- الخطوة 4 -->
+        <div id="parent-step-4" class="space-y-6 text-center py-6 hidden">
+          <div class="w-20 h-20 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-4xl mx-auto shadow-inner">✓</div>
+          <div>
+            <span class="text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-black">تم إشعار إدارة المدرسة</span>
+            <h3 class="text-2xl font-black text-slate-900 mt-2">تم إرسال طلب الاستئذان بنجاح!</h3>
+            <p class="text-sm text-slate-600 mt-2 max-w-sm mx-auto">وصل طلبكم إلى شاشة وكيل المدرسة، وسيتم تجهيز الطالب عند البوابة.</p>
+          </div>
+          <div id="parent-summary-box" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-right text-xs font-bold space-y-1.5 text-slate-700"></div>
+          <button onclick="parentResetAll()" class="px-8 py-3 bg-slate-200 hover:bg-slate-300 text-slate-800 font-black rounded-xl text-sm transition">تقديم طلب استئذان آخر ↺</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- 2️⃣ لوحة الإدارة                                          -->
+    <!-- ======================================================== -->
+    <section id="view-admin" class="hidden space-y-6">
+
+      <!-- تسجيل الدخول -->
+      <div id="admin-auth-gate" class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-xl border border-slate-200 space-y-6 text-center">
+        <div class="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-inner">🔐</div>
+        <div>
+          <h3 class="text-xl font-black text-slate-900">تسجيل دخول إدارة المدرسة</h3>
+          <p class="text-xs text-slate-500 mt-1">منطقة محمية خاصة بوكلاء ومسؤولي مدرسة ابتدائية إبن الهيثم (بنين)</p>
+        </div>
+        <form onsubmit="handleAdminLogin(event)" class="space-y-4 text-right">
+          <div>
+            <label class="lbl">كلمة مرور الإدارة:</label>
+            <div class="relative">
+              <input type="password" id="input-admin-password" placeholder="أدخل كلمة المرور" required class="w-full p-3.5 bg-slate-50 border-2 border-slate-200 rounded-xl text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-emerald-600 focus:bg-white transition">
+              <button type="button" onclick="togglePasswordVisibility('input-admin-password')" class="absolute left-3 top-3.5 text-slate-400 hover:text-slate-600 text-sm">👁️</button>
+            </div>
+          </div>
+          <div id="admin-login-error" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-xl text-center">كلمة المرور غير صحيحة، يرجى المحاولة مرة أخرى!</div>
+          <button id="admin-login-btn" type="submit" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black text-base rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2"><span>دخول للوحة التحكم 🚪</span></button>
+        </form>
+      </div>
+
+      <!-- محتوى الإدارة -->
+      <div id="admin-dashboard-content" class="hidden space-y-6">
+
+        <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <span class="text-xs bg-emerald-100 text-emerald-800 font-black px-2.5 py-1 rounded-full">شاشة الإدارة المدرسية المباشرة</span>
+            <h2 class="text-2xl font-black text-slate-900 mt-1">مدرسة ابتدائية إبن الهيثم (بنين) - حائل 🏫</h2>
+            <p class="text-xs text-slate-500 font-medium">متابعة استئذان الطلاب لحظياً، سجل أولياء الأمور، والترحيل السنوي للصفوف</p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <div id="status-live-indicator" class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-2 rounded-xl text-xs font-bold">
+              <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+              <span id="backend-label">متصل سحابياً مع Supabase ✓</span>
+            </div>
+            <button type="button" onclick="openChangePasswordModal()" class="px-3 py-2 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"><span>🔑</span> تغيير كلمة المرور</button>
+            <button type="button" onclick="handleAdminLogout()" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-xl text-xs font-bold transition flex items-center gap-1"><span>🚪</span> خروج</button>
+          </div>
+        </div>
+
+        <!-- مؤشرات سريعة -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm"><p class="text-xs font-bold text-slate-500">📋 طلبات اليوم</p><p id="stat-today" class="text-3xl font-black text-slate-900 mt-1">0</p></div>
+          <div class="bg-white p-4 rounded-2xl border border-amber-200 shadow-sm"><p class="text-xs font-bold text-amber-700">⏳ قيد الانتظار</p><p id="stat-pending" class="text-3xl font-black text-amber-700 mt-1">0</p></div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm"><p class="text-xs font-bold text-slate-500">👥 أولياء الأمور</p><p id="stat-parents" class="text-3xl font-black text-slate-900 mt-1">0</p></div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm"><p class="text-xs font-bold text-slate-500">🎒 الطلاب الحاليون</p><p id="stat-students" class="text-3xl font-black text-slate-900 mt-1">0</p></div>
+        </div>
+
+        <!-- التبويبات -->
+        <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+          <button id="admin-subtab-orders" onclick="switchAdminTab('orders')">📋 الطلبات الواردة (<span id="orders-count">0</span>)</button>
+          <button id="admin-subtab-parents" onclick="switchAdminTab('parents')">👥 سجل أولياء الأمور</button>
+          <button id="admin-subtab-students" onclick="switchAdminTab('students')">🎒 سجل الطلاب</button>
+          <button id="admin-subtab-add" onclick="switchAdminTab('add')">➕ تسجيل ولي أمر</button>
+          <button id="admin-subtab-promote" onclick="switchAdminTab('promote')">🎓 ترحيل الصفوف السنوية</button>
+        </div>
+
+        <!-- 1) الطلبات -->
+        <div id="admin-panel-orders" class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-black text-slate-800 text-lg">سجل استئذان اليوم المباشر</h3>
+            <button onclick="refreshOrders()" class="text-xs font-bold text-emerald-700 hover:underline flex items-center gap-1">🔄 تحديث يدوي</button>
+          </div>
+          <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-right text-xs sm:text-sm">
+                <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-4">الطالب</th><th class="p-4">الصف والشعبة</th><th class="p-4">ولي الأمر</th><th class="p-4">المستلم</th>
+                    <th class="p-4">الوقت المجدول</th><th class="p-4">السيارة</th><th class="p-4 text-center">الحالة</th><th class="p-4 text-center">الإجراء</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-orders-table" class="divide-y divide-slate-100 font-medium"></tbody>
+              </table>
+            </div>
+            <div id="no-orders-msg" class="p-8 text-center text-slate-400 font-bold text-sm hidden">لا توجد طلبات استئذان حالية حتى الآن.</div>
+          </div>
+        </div>
+
+        <!-- 2) سجل أولياء الأمور -->
+        <div id="admin-panel-parents" class="hidden space-y-4">
+          <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div>
+                <h3 class="text-lg font-black text-slate-900">سجل أولياء الأمور</h3>
+                <p class="text-xs text-slate-500 font-medium" id="parents-count-label"></p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="toggleRevealSensitive()" id="btn-reveal" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 rounded-xl text-xs font-bold">👁️ إظهار الأرقام كاملة</button>
+                <button onclick="exportParentsCSV()" class="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-xl text-xs font-bold">⬇️ تصدير Excel</button>
+                <button onclick="switchAdminTab('add')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold">➕ ولي أمر جديد</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <input id="parents-search" oninput="renderParentsRegistry()" placeholder="🔍 ابحث باسم ولي الأمر، الهوية، الجوال، البريد، اسم الطالب أو هويته، المفوَّضين، الملاحظات..." class="inp md:col-span-2 bg-slate-50">
+              <select id="parents-filter" onchange="renderParentsRegistry()" class="inp bg-slate-50">
+                <option value="active">أولياء الأمور الحاليون</option>
+                <option value="former">أولياء أمور سابقون (منقولة ولايتهم)</option>
+                <option value="all">الكل (الحاليون والسابقون)</option>
+                <option value="verified">الجوال موثّق في أبشر</option>
+                <option value="unverified">الجوال غير موثّق</option>
+                <option value="notes">لديهم ملاحظات / تنبيهات</option>
+              </select>
+            </div>
+          </div>
+          <div id="parents-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+          <div id="no-parents-msg" class="hidden bg-white p-8 rounded-3xl border border-slate-200 text-center text-slate-400 font-bold text-sm">لا توجد نتائج مطابقة.</div>
+        </div>
+
+        <!-- سجل الطلاب -->
+        <div id="admin-panel-students" class="hidden space-y-4">
+          <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <div>
+              <h3 class="text-lg font-black text-slate-900">سجل الطلاب</h3>
+              <p class="text-xs text-slate-500 font-medium" id="students-count-label"></p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <input id="students-search" oninput="renderStudentsRegistry()" placeholder="🔍 ابحث باسم الطالب أو هويته أو اسم ولي أمره أو جواله..." class="inp md:col-span-2 bg-slate-50">
+              <select id="students-class-filter" onchange="renderStudentsRegistry()" class="inp bg-slate-50"></select>
+            </div>
+          </div>
+          <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-right text-xs sm:text-sm">
+                <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                  <tr><th class="p-4">الطالب</th><th class="p-4">هوية الطالب</th><th class="p-4">الصف والشعبة</th><th class="p-4">ولي الأمر</th><th class="p-4">جوال ولي الأمر</th><th class="p-4 text-center"></th></tr>
+                </thead>
+                <tbody id="students-tbody" class="divide-y divide-slate-100 font-medium"></tbody>
+              </table>
+            </div>
+            <div id="no-students-msg" class="hidden p-8 text-center text-slate-400 font-bold text-sm">لا توجد نتائج مطابقة.</div>
+          </div>
+        </div>
+
+        <!-- 3) تسجيل ولي أمر -->
+        <div id="admin-panel-add" class="hidden bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
+          <div class="border-b pb-4">
+            <h3 class="text-lg font-black text-slate-800">تسجيل ولي أمر وربط أبنائه في المدرسة</h3>
+            <p class="text-xs text-slate-500 mt-1">الحقول المعلّمة بـ * إلزامية. رقم الجوال هو الذي يصله رمز التحقق OTP.</p>
+          </div>
+          <form onsubmit="handleSaveParentAndStudents(event)" class="space-y-6">
+            <div id="add-form-body" class="space-y-6"></div>
+            <div class="pt-2 flex justify-end">
+              <button type="submit" class="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-xl shadow-lg shadow-emerald-600/20 active:scale-95 transition">حفظ وربط البيانات في النظام ✓</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- 4) الترحيل -->
+        <div id="admin-panel-promote" class="hidden bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
+          <div class="border-b pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <span class="text-xs bg-indigo-50 text-indigo-700 font-black px-2.5 py-1 rounded-full">نهاية العام الدراسي 🎓</span>
+              <h3 class="text-xl font-black text-slate-900 mt-1">ترحيل وترقية صفوف طلاب ابتدائية إبن الهيثم</h3>
+              <p class="text-xs text-slate-500 mt-1">ترقية الطلاب تلقائياً للسنة التالية. طلاب الصف السادس ينتقلون إلى "تم التخرج الله يوفقه 🎓" مع بقاء أسمائهم محفوظة.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="promoteSelectAll(true)" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">تحديد الكل ✓</button>
+              <button type="button" onclick="promoteSelectAll(false)" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">إلغاء التحديد ✕</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <input id="promote-search" oninput="filterPromoteRows()" placeholder="🔍 ابحث باسم الطالب أو ولي الأمر..." class="inp md:col-span-2 bg-slate-50">
+            <select id="promote-class-filter" onchange="filterPromoteRows()" class="inp bg-slate-50"></select>
+          </div>
+          <p id="promote-count-label" class="text-xs font-bold text-slate-500"></p>
+          <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-start gap-3 text-xs text-amber-800">
+            <span class="text-lg">💡</span>
+            <div><p class="font-black mb-0.5">الطالب الباقي للإعادة:</p><p>أزل علامة الصح من أمام اسمه وسيبقى في صفه دون ترقية. أزرار "تحديد الكل" و"إلغاء التحديد" تطبَّق على النتائج الظاهرة فقط.</p></div>
+          </div>
+          <div class="border border-slate-200 rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-right text-xs sm:text-sm">
+                <thead class="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                  <tr><th class="p-3.5 text-center w-12">ترقية؟</th><th class="p-3.5">اسم الطالب</th><th class="p-3.5">ولي الأمر</th><th class="p-3.5">الصف الحالي</th><th class="p-3.5">الصف الجديد</th></tr>
+                </thead>
+                <tbody id="promote-students-tbody" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="flex justify-end pt-2">
+            <button type="button" onclick="executeBatchPromotion()" class="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black text-sm rounded-xl shadow-lg shadow-emerald-600/20 transition">اعتماد وترحيل الصفوف للعام الجديد 🚀</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 font-bold">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p>منصة استئذاني الموحدة © مدرسة ابتدائية إبن الهيثم (بنين) - تعليم حائل</p>
+      <p class="text-emerald-700 font-extrabold">المملكة العربية السعودية 🇸🇦 وزارة التعليم</p>
+    </div>
+  </footer>
+
+  <!-- ==================== نافذة ملف ولي الأمر ==================== -->
+  <div id="modal-parent-details" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden overflow-y-auto">
+    <div class="min-h-full flex items-start justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-5 shadow-2xl my-6">
+        <div class="flex items-center justify-between border-b pb-3">
+          <h3 class="font-black text-lg text-slate-800">🪪 ملف ولي الأمر</h3>
+          <button onclick="closeModal('modal-parent-details')" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+        </div>
+        <div id="parent-details-body" class="space-y-5"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== نافذة ملف الطالب ==================== -->
+  <div id="modal-student-details" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden overflow-y-auto">
+    <div class="min-h-full flex items-start justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-5 shadow-2xl my-6">
+        <div class="flex items-center justify-between border-b pb-3">
+          <h3 class="font-black text-lg text-slate-800">🎒 ملف الطالب</h3>
+          <button onclick="closeModal('modal-student-details')" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+        </div>
+        <div id="student-details-body" class="space-y-5"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== نافذة تعديل ولي الأمر ==================== -->
+  <div id="modal-parent-edit" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden overflow-y-auto">
+    <div class="min-h-full flex items-start justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-3xl w-full p-6 space-y-5 shadow-2xl my-6">
+        <div class="flex items-center justify-between border-b pb-3">
+          <h3 class="font-black text-lg text-slate-800">✏️ تعديل بيانات ولي الأمر</h3>
+          <button onclick="closeModal('modal-parent-edit')" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+        </div>
+        <form onsubmit="handleSaveParentEdit(event)" class="space-y-6">
+          <div id="edit-form-body" class="space-y-6"></div>
+          <div class="p-3 bg-indigo-50 border border-indigo-200 rounded-xl text-xs font-bold text-indigo-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span>💡 تعديل البيانات هنا يصحّح بيانات نفس الشخص. إذا تغيّر ولي الأمر نفسه (وفاة، طلاق، حضانة...) استخدم "نقل الولاية" ليبقى ولي الأمر السابق محفوظاً في السجل.</span>
+            <button type="button" onclick="closeModal('modal-parent-edit'); openTransfer(editingOriginalNid)" class="px-3 py-2 bg-white hover:bg-indigo-100 border border-indigo-300 rounded-lg whitespace-nowrap">🔄 نقل الولاية</button>
+          </div>
+          <div class="flex gap-2 justify-end">
+            <button type="button" onclick="closeModal('modal-parent-edit')" class="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl">إلغاء</button>
+            <button id="btn-save-edit" type="submit" class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-xl shadow-md">حفظ التعديلات ✓</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== نافذة تغيير كلمة المرور ==================== -->
+  <div id="modal-change-password" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl border border-slate-100">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-black text-lg text-slate-800 flex items-center gap-2"><span>🔑</span> تغيير كلمة مرور لوحة الإدارة</h3>
+        <button onclick="closeModal('modal-change-password')" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+      </div>
+      <form onsubmit="handleSaveNewPassword(event)" class="space-y-4">
+        <div><label class="lbl">كلمة المرور الحالية:</label><input type="password" id="pwd-current" required class="inp font-mono"></div>
+        <div><label class="lbl">كلمة المرور الجديدة:</label><input type="password" id="pwd-new" required minlength="6" class="inp font-mono"></div>
+        <div><label class="lbl">تأكيد كلمة المرور الجديدة:</label><input type="password" id="pwd-confirm" required minlength="6" class="inp font-mono"></div>
+        <div id="pwd-change-msg" class="hidden"></div>
+        <div class="flex gap-2 pt-2">
+          <button id="btn-save-pwd" type="submit" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-md transition">حفظ كلمة المرور ✓</button>
+          <button type="button" onclick="closeModal('modal-change-password')" class="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== نافذة نقل الولاية ==================== -->
+  <div id="modal-transfer" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden overflow-y-auto">
+    <div class="min-h-full flex items-start justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-5 shadow-2xl my-6">
+        <div class="flex items-center justify-between border-b pb-3">
+          <div>
+            <h3 class="font-black text-lg text-slate-800">🔄 نقل الولاية إلى ولي أمر آخر</h3>
+            <p class="text-xs text-slate-500 font-medium">يبقى ولي الأمر الحالي محفوظاً في السجل كولي أمر سابق، ولن يتمكن من طلب استئذان للأبناء المنقولين.</p>
+          </div>
+          <button onclick="closeModal('modal-transfer')" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+        </div>
+        <form onsubmit="handleTransfer(event)" class="space-y-5">
+          <div id="transfer-from" class="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700"></div>
+
+          <div class="space-y-2">
+            <h4 class="font-black text-sm text-slate-800">🎒 الأبناء المراد نقل ولايتهم</h4>
+            <div id="transfer-students" class="space-y-2"></div>
+          </div>
+
+          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+            <h4 class="font-black text-sm text-slate-800">👤 ولي الأمر الجديد</h4>
+            <div id="transfer-existing-note" class="hidden p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800"></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div><label class="lbl">رقم الهوية الوطنية / الإقامة *</label><input id="tr-nid" maxlength="10" inputmode="numeric" placeholder="1xxxxxxxxx" oninput="onTransferNidInput()" class="inp" required></div>
+              <div><label class="lbl">الاسم الرباعي *</label><input id="tr-name" class="inp tr-new" placeholder="الاسم الكامل"></div>
+              <div><label class="lbl">صلة القرابة بالطالب *</label><select id="tr-relation" class="inp tr-new"></select></div>
+              <div><label class="lbl">رقم الجوال (لاستلام OTP) *</label><input id="tr-phone" maxlength="10" inputmode="numeric" placeholder="05xxxxxxxx" class="inp tr-new"></div>
+              <div><label class="lbl">جوال بديل للطوارئ</label><input id="tr-alt" maxlength="10" inputmode="numeric" placeholder="05xxxxxxxx" class="inp tr-new"></div>
+              <div><label class="lbl">البريد الإلكتروني (اختياري)</label><input id="tr-email" type="email" dir="ltr" placeholder="name@example.com" class="inp tr-new"></div>
+            </div>
+            <label class="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer">
+              <input type="checkbox" id="tr-verified" class="w-5 h-5 mt-0.5 accent-emerald-600 tr-new">
+              <span class="text-xs font-bold text-slate-700">رقم الجوال موثّق ومسجّل باسم صاحب الهوية في أبشر</span>
+            </label>
+          </div>
+
+          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+            <h4 class="font-black text-sm text-slate-800">📄 سبب نقل الولاية <span class="text-slate-400 font-bold text-xs">(اختياري)</span></h4>
+            <select id="tr-reason" class="inp"></select>
+            <textarea id="tr-note" rows="2" placeholder="ملاحظة اختيارية، مثال: رقم صك الحضانة أو أي تفاصيل تحتاجها الإدارة" class="inp"></textarea>
+          </div>
+
+          <div class="flex gap-2 justify-end">
+            <button type="button" onclick="closeModal('modal-transfer')" class="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl">إلغاء</button>
+            <button id="btn-transfer" type="submit" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-xl shadow-md">نقل الولاية ✓</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== نافذة التأكيد ==================== -->
+  <div id="modal-confirm" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[70] hidden overflow-y-auto">
+    <div class="min-h-full flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+        <div class="flex items-center gap-3 border-b pb-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl shrink-0">⚠️</div>
+          <h3 id="confirm-title" class="font-black text-lg text-slate-900"></h3>
+        </div>
+        <div id="confirm-body" class="text-sm font-bold text-slate-700 max-h-[50vh] overflow-y-auto"></div>
+        <div class="flex gap-2 pt-1">
+          <button id="confirm-ok" type="button" onclick="resolveConfirm(true)"></button>
+          <button type="button" onclick="resolveConfirm(false)" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // ⚙️ الإعدادات العامة
+    // ==========================================
+    const DEFAULT_SUPABASE_URL = "https://mymssqdwevkhfgaqvayw.supabase.co";
+    const DEFAULT_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15bXNzcWR3ZXZraGZnYXF2YXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwMjczNzYsImV4cCI6MjEwNjYwMzM3Nn0.6qrPWgm9X6ZZE2it5sQDDl9HwZTteyw21nuRRalivPE";
+    const DEFAULT_ADMIN_PASSWORD = "Ibnalhaytham@2026";
+    const DEMO_OTP = "123456";
+    const DB_KEY = "isteathani_db_v4";
+    const TRANSFER_REASONS = ['وفاة ولي الأمر', 'طلاق / انفصال', 'حكم حضانة', 'سفر أو إقامة خارج المنطقة', 'تنازل بالاتفاق', 'أخرى'];
+
+    const S_PENDING = 'قيد الانتظار';
+    const S_READY = 'تم التجهيز عند البوابة';
+    const S_DONE = 'تم الخروج والتسليم ✓';
+    const RELATIONS = ['أب', 'أم', 'أخ', 'عم', 'خال', 'جد', 'وصي', 'أخرى'];
+    const GRADES = ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس'];
+    const NID_RE = /^[12]\d{9}$/;
+    const PHONE_RE = /^05\d{8}$/;
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    let isAdminAuthenticated = false;
+    let supabaseClient = null;
+    let isLiveSupabase = false;
+    let ordersCache = [];
+    let parentsCache = [];
+    let revealSensitive = false;
+
+    // ==========================================
+    // 🧪 بيانات العرض التجريبي
+    // ==========================================
+    function minsAgo(m) { return new Date(Date.now() - m * 60000).toISOString(); }
+
+    function buildDemoDB() {
+      return {
+        parents: [
+          {
+            parent_id: "1001079175", parent_name: "مشاري سعود الجميل", parent_relation: "أب",
+            parent_phone: "0511118181", parent_alt_phone: "0551112233", parent_email: "mishari.aljameel@gmail.com",
+            phone_verified: true, parent_notes: "",
+            authorized_pickups: [{ name: "عثمان سعود الجميل", relation: "عم", nid: "1098765432", phone: "0559876543" }],
+            students: [
+              { id: "st-1", nid: "1123456781", name: "سعود مشاري الجميل", class: "الصف الثالث ابتدائي / أ" },
+              { id: "st-2", nid: "1123456782", name: "عبدالرحمن مشاري الجميل", class: "الصف الأول ابتدائي / ب" }
+            ]
+          },
+          {
+            parent_id: "1034567890", parent_name: "فهد عبدالله الشمري", parent_relation: "أب",
+            parent_phone: "0509876543", parent_alt_phone: "", parent_email: "",
+            phone_verified: true, parent_notes: "",
+            authorized_pickups: [{ name: "نايف فهد الشمري", relation: "أخ", nid: "1122334455", phone: "0561239876" }],
+            students: [{ id: "st-3", nid: "1123456783", name: "عبدالله فهد الشمري", class: "الصف الخامس ابتدائي / أ" }]
+          },
+          {
+            parent_id: "1045678901", parent_name: "نورة محمد العنزي", parent_relation: "أم",
+            parent_phone: "0533334444", parent_alt_phone: "0544445555", parent_email: "noura.m@outlook.com",
+            phone_verified: false, parent_notes: "يُسلَّم الطلاب للأم أو الجد فقط. التواصل عبر الجوال الأساسي.",
+            authorized_pickups: [{ name: "محمد سالم العنزي", relation: "جد", nid: "1009988776", phone: "0505556677" }],
+            students: [
+              { id: "st-4", nid: "1123456784", name: "محمد خالد العنزي", class: "الصف الثاني ابتدائي / أ" },
+              { id: "st-5", nid: "1123456785", name: "ريان خالد العنزي", class: "الصف السادس ابتدائي / ب" }
+            ]
+          },
+          {
+            parent_id: "1067890123", parent_name: "خالد سالم العنزي", parent_relation: "أب",
+            parent_phone: "0567778888", parent_alt_phone: "", parent_email: "",
+            phone_verified: true, parent_notes: "", authorized_pickups: [],
+            students: [],
+            transferred_students: [
+              { id: "st-4", nid: "1123456784", name: "محمد خالد العنزي", class: "الصف الثاني ابتدائي / أ", to_nid: "1045678901", to_name: "نورة محمد العنزي", reason: "حكم حضانة", note: "بموجب صك الحضانة المسلَّم للمدرسة", date: minsAgo(60 * 24 * 40) },
+              { id: "st-5", nid: "1123456785", name: "ريان خالد العنزي", class: "الصف السادس ابتدائي / ب", to_nid: "1045678901", to_name: "نورة محمد العنزي", reason: "حكم حضانة", note: "بموجب صك الحضانة المسلَّم للمدرسة", date: minsAgo(60 * 24 * 40) }
+            ]
+          },
+          {
+            parent_id: "1056789012", parent_name: "سلطان ناصر الرشيدي", parent_relation: "أب",
+            parent_phone: "0545556666", parent_alt_phone: "", parent_email: "sultan.alrashidi@hotmail.com",
+            phone_verified: true, parent_notes: "", authorized_pickups: [],
+            students: [{ id: "st-6", nid: "1123456786", name: "ناصر سلطان الرشيدي", class: "الصف الرابع ابتدائي / أ" }]
+          }
+        ],
+        orders: [
+          { id: "req-104", student_name: "ريان خالد العنزي", student_class: "الصف السادس ابتدائي / ب", parent_name: "نورة محمد العنزي", parent_national_id: "1045678901", pickup_person: "سالم الحربي", pickup_authorized: false, pickup_time: "12:00", car_info: "هيونداي سوناتا رمادي", status: S_PENDING, created_at: minsAgo(2) },
+          { id: "req-103", student_name: "سعود مشاري الجميل", student_class: "الصف الثالث ابتدائي / أ", parent_name: "مشاري سعود الجميل", parent_national_id: "1001079175", pickup_person: "مشاري سعود الجميل (ولي الأمر)", pickup_authorized: true, pickup_time: "11:30", car_info: "جمس يوكن أسود", status: S_PENDING, created_at: minsAgo(6) },
+          { id: "req-102", student_name: "عبدالله فهد الشمري", student_class: "الصف الخامس ابتدائي / أ", parent_name: "فهد عبدالله الشمري", parent_national_id: "1034567890", pickup_person: "نايف فهد الشمري (أخ)", pickup_authorized: true, pickup_time: "10:45", car_info: "تويوتا كامري أبيض", status: S_READY, created_at: minsAgo(25) },
+          { id: "req-101", student_name: "ناصر سلطان الرشيدي", student_class: "الصف الرابع ابتدائي / أ", parent_name: "سلطان ناصر الرشيدي", parent_national_id: "1056789012", pickup_person: "سلطان ناصر الرشيدي (ولي الأمر)", pickup_authorized: true, pickup_time: "09:15", car_info: "لاندكروزر أبيض", status: S_DONE, created_at: minsAgo(140) }
+        ]
+      };
+    }
+
+    let localMockDB;
+    try { localMockDB = JSON.parse(localStorage.getItem(DB_KEY)) || buildDemoDB(); } catch (e) { localMockDB = buildDemoDB(); }
+    function saveLocalMockDB() { try { localStorage.setItem(DB_KEY, JSON.stringify(localMockDB)); } catch (e) {} }
+
+    // ==========================================
+    // 🧰 أدوات مساعدة
+    // ==========================================
+    function esc(v) {
+      return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function uid(prefix) { return prefix + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+    function isGrad(c) { return (c || '').includes('تخرج'); }
+    function fmtTime(v) {
+      if (!v) return '-';
+      const d = new Date(v);
+      if (isNaN(d)) return v;
+      return d.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+    }
+    function isToday(v) {
+      const d = new Date(v);
+      if (isNaN(d)) return true;
+      return d.toDateString() === new Date().toDateString();
+    }
+    function maskNid(v) { if (!v) return '-'; return revealSensitive ? v : v.slice(0, 2) + '••••••' + v.slice(-2); }
+    function maskPhone(v) { if (!v) return '-'; return revealSensitive ? v : v.slice(0, 3) + '••••' + v.slice(-3); }
+    function maskEmail(v) {
+      if (!v) return '—';
+      if (revealSensitive) return v;
+      const [u, d] = v.split('@');
+      return (u || '').slice(0, 2) + '•••@' + (d || '');
+    }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+
+    function showCustomAlert(message) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3.5 rounded-2xl text-sm font-bold shadow-2xl z-[60] transition-all border border-slate-700 max-w-sm text-center whitespace-pre-line';
+      toast.innerText = message;
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 3500);
+    }
+
+    // نافذة تأكيد مخصصة (بديلة لـ confirm التي قد تُحجب داخل بعض المتصفحات والإطارات)
+    let _confirmResolve = null;
+    function askConfirm(title, bodyHtml, okLabel = 'نعم، متأكد', danger = false) {
+      document.getElementById('confirm-title').innerText = title;
+      document.getElementById('confirm-body').innerHTML = bodyHtml;
+      const ok = document.getElementById('confirm-ok');
+      ok.innerText = okLabel;
+      ok.className = 'flex-1 py-3 text-white font-black text-sm rounded-xl shadow-md transition ' + (danger ? 'bg-rose-600 hover:bg-rose-700' : 'bg-emerald-600 hover:bg-emerald-700');
+      openModal('modal-confirm');
+      return new Promise(res => { _confirmResolve = res; });
+    }
+    function resolveConfirm(v) {
+      closeModal('modal-confirm');
+      if (_confirmResolve) { const r = _confirmResolve; _confirmResolve = null; r(v); }
+    }
+
+    // مقارنة بيانات ولي الأمر قبل وبعد التعديل
+    function diffParent(o, d) {
+      const out = [];
+      const cmp = (label, a, b) => { if ((a || '') !== (b || '')) out.push({ label, from: a || '', to: b || '' }); };
+      cmp('🪪 رقم الهوية', o.parent_id, d.parent_id);
+      cmp('👤 الاسم', o.parent_name, d.parent_name);
+      cmp('👪 صلة القرابة', o.parent_relation, d.parent_relation);
+      cmp('📱 الجوال الأساسي', o.parent_phone, d.parent_phone);
+      cmp('📞 الجوال البديل', o.parent_alt_phone, d.parent_alt_phone);
+      cmp('✉️ البريد الإلكتروني', o.parent_email, d.parent_email);
+      cmp('📝 الملاحظات', o.parent_notes, d.parent_notes);
+      if (o.phone_verified !== d.phone_verified) out.push({ label: '✅ توثيق الجوال في أبشر', from: o.phone_verified ? 'موثّق' : 'غير موثّق', to: d.phone_verified ? 'موثّق' : 'غير موثّق' });
+      const fmtA = a => `${a.name}|${a.relation}|${a.nid}|${a.phone}`;
+      const oa = o.authorized_pickups.map(fmtA), na = d.authorized_pickups.map(fmtA);
+      if (oa.join('#') !== na.join('#')) {
+        const names = l => l.map(a => a.name).join('، ') || 'لا يوجد';
+        out.push({ label: '🛡️ المفوَّضون بالاستلام', from: names(o.authorized_pickups), to: names(d.authorized_pickups) });
+      }
+      const kept = d.students.filter(s => s.id).map(s => String(s.id));
+      o.students.filter(s => !kept.includes(String(s.id))).forEach(s => out.push({ label: '🗑️ إزالة طالب', to: s.name }));
+      d.students.filter(s => !s.id).forEach(s => out.push({ label: '➕ إضافة طالب', to: `${s.name} · ${s.class}` + (s.nid ? ` · ${s.nid}` : '') }));
+      d.students.filter(s => s.id).forEach(s => {
+        const os = o.students.find(x => String(x.id) === String(s.id));
+        if (!os) return;
+        if (os.name !== s.name) out.push({ label: '🎒 اسم الطالب', from: os.name, to: s.name });
+        if ((os.nid || '') !== (s.nid || '')) out.push({ label: `🪪 هوية ${s.name}`, from: os.nid || '', to: s.nid || '' });
+        if (os.class !== s.class) out.push({ label: `🏫 صف ${s.name}`, from: os.class, to: s.class });
+      });
+      return out;
+    }
+
+    function classOptions(sel) {
+      let h = '';
+      const all = [];
+      GRADES.forEach(g => ['أ', 'ب'].forEach(s => all.push(`الصف ${g} ابتدائي / ${s}`)));
+      if (sel && !all.includes(sel)) h += `<option value="${esc(sel)}" selected>${esc(sel)}</option>`;
+      all.forEach(v => { h += `<option value="${v}" ${v === sel ? 'selected' : ''}>${v}</option>`; });
+      return h;
+    }
+
+    // ==========================================
+    // ☁️ الاتصال
+    // ==========================================
+    // وضع العرض التجريبي يُفعَّل فقط بإضافة ?demo=1 إلى الرابط (و ?demo=reset لإعادة ضبط البيانات)
+    function isDemoMode() {
+      const v = new URLSearchParams(location.search).get('demo');
+      if (v === 'reset') { localMockDB = buildDemoDB(); saveLocalMockDB(); return true; }
+      return v === '1' || v === 'true';
+    }
+
+    function initSupabase() {
+      const label = document.getElementById('backend-label');
+      const dot = document.getElementById('status-dot');
+      const box = document.getElementById('status-live-indicator');
+      const savedUrl = DEFAULT_SUPABASE_URL;
+      const savedKey = DEFAULT_SUPABASE_KEY;
+
+      if (!isDemoMode() && savedUrl && savedKey && window.supabase) {
+        try {
+          supabaseClient = window.supabase.createClient(savedUrl, savedKey);
+          isLiveSupabase = true;
+          label.innerText = "متصل سحابياً مع Supabase ✓";
+          setupRealtime();
+          return;
+        } catch (e) { console.error(e); }
+      }
+      isLiveSupabase = false;
+      label.innerText = "وضع العرض التجريبي";
+      dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
+      box.className = "flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2 rounded-xl text-xs font-bold";
+    }
+
+    function setupRealtime() {
+      if (!isLiveSupabase) return;
+      supabaseClient.channel('istithani-live')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'permission_requests' }, () => refreshOrders())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'parent_students' }, async () => {
+          await loadParents();
+          if (!document.getElementById('admin-panel-parents').classList.contains('hidden')) renderParentsRegistry();
+        })
+        .subscribe();
+    }
+
+    // ==========================================
+    // 🔐 كلمة مرور الإدارة
+    // ==========================================
+    async function getAdminPasswordAsync() {
+      if (isLiveSupabase) {
+        try {
+          const { data, error } = await supabaseClient.from('school_settings').select('setting_value').eq('setting_key', 'admin_password').maybeSingle();
+          if (!error && data && data.setting_value) {
+            localStorage.setItem('school_admin_password', data.setting_value);
+            return data.setting_value;
+          }
+        } catch (e) { console.warn(e); }
+      }
+      return localStorage.getItem('school_admin_password') || DEFAULT_ADMIN_PASSWORD;
+    }
+
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById('admin-login-btn');
+      const entered = document.getElementById('input-admin-password').value.trim();
+      const err = document.getElementById('admin-login-error');
+      btn.disabled = true; btn.innerHTML = `<span>جارٍ التحقق... ⏳</span>`;
+      try {
+        if (entered === await getAdminPasswordAsync()) {
+          isAdminAuthenticated = true;
+          sessionStorage.setItem('is_admin_logged_in', 'true');
+          err.classList.add('hidden');
+          document.getElementById('input-admin-password').value = '';
+          renderAdminView();
+        } else err.classList.remove('hidden');
+      } catch (x) { err.classList.remove('hidden'); }
+      finally { btn.disabled = false; btn.innerHTML = `<span>دخول للوحة التحكم 🚪</span>`; }
+    }
+
+    function handleAdminLogout() {
+      isAdminAuthenticated = false;
+      sessionStorage.removeItem('is_admin_logged_in');
+      renderAdminView();
+    }
+
+    function renderAdminView() {
+      const gate = document.getElementById('admin-auth-gate');
+      const dash = document.getElementById('admin-dashboard-content');
+      if (isAdminAuthenticated) {
+        gate.classList.add('hidden'); dash.classList.remove('hidden');
+        switchAdminTab('orders');
+        loadParents();
+      } else {
+        gate.classList.remove('hidden'); dash.classList.add('hidden');
+      }
+    }
+
+    function togglePasswordVisibility(id) {
+      const f = document.getElementById(id);
+      if (f) f.type = f.type === 'password' ? 'text' : 'password';
+    }
+
+    function openChangePasswordModal() {
+      ['pwd-current', 'pwd-new', 'pwd-confirm'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('pwd-change-msg').className = 'hidden';
+      openModal('modal-change-password');
+    }
+
+    async function handleSaveNewPassword(e) {
+      e.preventDefault();
+      const cur = document.getElementById('pwd-current').value.trim();
+      const nw = document.getElementById('pwd-new').value.trim();
+      const conf = document.getElementById('pwd-confirm').value.trim();
+      const msg = document.getElementById('pwd-change-msg');
+      const btn = document.getElementById('btn-save-pwd');
+      const fail = t => { msg.className = 'block p-2.5 rounded-xl text-center bg-rose-50 text-rose-700 text-xs font-bold'; msg.innerText = t; btn.disabled = false; btn.innerText = "حفظ كلمة المرور ✓"; };
+
+      btn.disabled = true; btn.innerText = "جارٍ الحفظ...";
+      if (cur !== await getAdminPasswordAsync()) return fail('كلمة المرور الحالية غير صحيحة!');
+      if (nw !== conf) return fail('كلمة المرور الجديدة غير متطابقة مع خانة التأكيد!');
+      if (nw.length < 6) return fail('يجب ألا تقل كلمة المرور عن 6 خانات!');
+      if (!await askConfirm('هل أنت متأكد من تغيير كلمة المرور؟', '<p>بعد الحفظ لن تعمل كلمة المرور القديمة، وسيحتاج جميع الوكلاء إلى الكلمة الجديدة.</p>', 'نعم، غيّرها')) {
+        btn.disabled = false; btn.innerText = "حفظ كلمة المرور ✓"; return;
+      }
+
+      if (isLiveSupabase) {
+        const { error } = await supabaseClient.from('school_settings').upsert({ setting_key: 'admin_password', setting_value: nw, updated_at: new Date().toISOString() });
+        if (error) console.warn(error);
+      }
+      localStorage.setItem('school_admin_password', nw);
+      msg.className = 'block p-2.5 rounded-xl text-center bg-emerald-50 text-emerald-800 text-xs font-bold';
+      msg.innerText = '✅ تم تحديث كلمة المرور بنجاح!';
+      setTimeout(() => { btn.disabled = false; btn.innerText = "حفظ كلمة المرور ✓"; closeModal('modal-change-password'); }, 1200);
+    }
+
+    // ==========================================
+    // 🧭 التنقل
+    // ==========================================
+    function switchMainTab(tab) {
+      const isParent = tab === 'parent';
+      document.getElementById('view-parent').classList.toggle('hidden', !isParent);
+      document.getElementById('view-admin').classList.toggle('hidden', isParent);
+      const on = "px-5 py-2.5 rounded-xl font-black text-sm transition-all duration-200 bg-white text-emerald-900 shadow-md";
+      const off = "px-5 py-2.5 rounded-xl font-black text-sm transition-all duration-200 text-white/90 hover:text-white hover:bg-emerald-800/60";
+      document.getElementById('tab-btn-parent').className = isParent ? on : off;
+      document.getElementById('tab-btn-admin').className = isParent ? off : on;
+      if (!isParent) renderAdminView();
+    }
+
+    const ADMIN_TABS = ['orders', 'parents', 'students', 'add', 'promote'];
+    function switchAdminTab(tab) {
+      ADMIN_TABS.forEach(t => {
+        document.getElementById('admin-panel-' + t).classList.toggle('hidden', t !== tab);
+        document.getElementById('admin-subtab-' + t).className = 'px-4 py-2.5 font-bold text-sm rounded-xl transition-all flex items-center gap-1.5 ' +
+          (t === tab ? 'bg-emerald-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200');
+      });
+      if (tab === 'orders') refreshOrders();
+      if (tab === 'parents') { Promise.all([loadParents(), refreshOrders()]).then(renderParentsRegistry); }
+      if (tab === 'promote') loadPromoteStudentsList();
+      if (tab === 'students') { Promise.all([loadParents(), refreshOrders()]).then(renderStudentsRegistry); }
+    }
+
+    // ==========================================
+    // 📦 طبقة البيانات: أولياء الأمور
+    // ==========================================
+    function normParent(p) {
+      p.parent_relation = p.parent_relation || 'أب';
+      p.parent_alt_phone = p.parent_alt_phone || '';
+      p.parent_email = p.parent_email || '';
+      p.phone_verified = !!p.phone_verified;
+      p.parent_notes = p.parent_notes || '';
+      p.authorized_pickups = Array.isArray(p.authorized_pickups) ? p.authorized_pickups : [];
+      p.students = Array.isArray(p.students) ? p.students : [];
+      p.transferred_students = Array.isArray(p.transferred_students) ? p.transferred_students : [];
+      p.is_former = p.students.length === 0 && p.transferred_students.length > 0;
+      return p;
+    }
+
+    // سجل الولاية الواردة: من نقل الولاية إلى ولي الأمر هذا
+    function receivedTransfers(p) {
+      const out = [];
+      parentsCache.forEach(o => o.transferred_students.forEach(t => {
+        if (t.to_nid === p.parent_id) out.push({ ...t, from_name: o.parent_name, from_nid: o.parent_id, from_relation: o.parent_relation });
+      }));
+      return out;
+    }
+
+    function groupParentRows(rows) {
+      const map = new Map();
+      rows.forEach(r => {
+        const k = r.parent_national_id;
+        if (!map.has(k)) map.set(k, {
+          parent_id: k, parent_name: r.parent_name, parent_phone: r.parent_phone,
+          parent_alt_phone: r.parent_alt_phone, parent_email: r.parent_email, parent_relation: r.parent_relation,
+          phone_verified: r.phone_verified, parent_notes: r.parent_notes, authorized_pickups: r.authorized_pickups,
+          students: [], transferred_students: []
+        });
+        if (!r.students) return;
+        const st = { id: r.students.id, nid: r.students.national_id || '', name: r.students.full_name, class: r.students.grade_class };
+        if (r.link_active === false) {
+          map.get(k).transferred_students.push({ ...st, to_nid: r.transferred_to_nid, to_name: r.transferred_to_name, reason: r.transfer_reason, note: r.transfer_note, date: r.transfer_date });
+        } else map.get(k).students.push(st);
+      });
+      return [...map.values()].map(normParent);
+    }
+
+    function parentRowFields(p) {
+      return {
+        parent_national_id: p.parent_id, parent_name: p.parent_name, parent_phone: p.parent_phone,
+        parent_alt_phone: p.parent_alt_phone || null, parent_email: p.parent_email || null,
+        parent_relation: p.parent_relation, phone_verified: p.phone_verified,
+        authorized_pickups: p.authorized_pickups, parent_notes: p.parent_notes || null
+      };
+    }
+
+    // جلب صفوف أولياء الأمور، مع توافق تلقائي إذا لم تُحدَّث قاعدة البيانات بعد
+    let schemaWarned = false;
+    async function queryParentRows(nid) {
+      const run = cols => {
+        let q = supabaseClient.from('parent_students').select(`*, students(${cols})`);
+        return nid ? q.eq('parent_national_id', nid) : q;
+      };
+      let res = await run('id, full_name, grade_class, national_id');
+      if (res.error && /does not exist/i.test(res.error.message || '')) {
+        res = await run('id, full_name, grade_class');
+        if (!schemaWarned) {
+          schemaWarned = true;
+          if (isAdminAuthenticated) showCustomAlert('⚠️ قاعدة البيانات تحتاج تحديث: شغّل ملف SQL في Supabase لتفعيل هوية الطالب ونقل الولاية والحقول الجديدة.');
+        }
+      }
+      return res;
+    }
+
+    async function loadParents() {
+      if (isLiveSupabase) {
+        try {
+          const { data, error } = await queryParentRows();
+          if (error) throw error;
+          parentsCache = groupParentRows(data || []);
+        } catch (e) {
+          console.error(e);
+          showCustomAlert('تعذر جلب سجل أولياء الأمور: ' + (e.message || ''));
+        }
+      } else {
+        parentsCache = localMockDB.parents.map(normParent);
+      }
+      updateStats();
+      return parentsCache;
+    }
+
+    async function fetchParentByNid(nid) {
+      if (isLiveSupabase) {
+        const { data, error } = await queryParentRows(nid);
+        if (error) { console.error(error); return null; }
+        return groupParentRows(data || [])[0] || null;
+      }
+      const p = localMockDB.parents.find(x => x.parent_id === nid);
+      return p ? normParent(p) : null;
+    }
+
+    // ==========================================
+    // 👨‍👦 تجربة ولي الأمر
+    // ==========================================
+    let currentParentData = null;
+    let currentSelectedStudentIds = [];
+
+    async function parentCheckIdentity() {
+      const nid = document.getElementById('parent-national-id').value.trim();
+      if (!NID_RE.test(nid)) return showCustomAlert('فضلاً أدخل رقم هوية صحيح مكوّن من 10 أرقام');
+
+      const parent = await fetchParentByNid(nid);
+      if (!parent) return showCustomAlert('رقم الهوية هذا غير مسجل في المدرسة. يرجى التواصل مع إدارة المدرسة لإضافتكم.');
+      if (!parent.students.length) return showCustomAlert('لا يوجد أبناء مرتبطون بهذه الهوية حالياً. يرجى مراجعة إدارة المدرسة.');
+
+      currentParentData = parent;
+      const phone = parent.parent_phone || '0500000000';
+      document.getElementById('parent-masked-phone').innerText = phone.substring(0, 3) + '****' + phone.substring(phone.length - 3);
+      document.getElementById('parent-step-1').classList.add('hidden');
+      document.getElementById('parent-step-2').classList.remove('hidden');
+      document.getElementById('parent-otp-input').value = DEMO_OTP;
+    }
+
+    function parentBackToStep1() {
+      document.getElementById('parent-step-2').classList.add('hidden');
+      document.getElementById('parent-step-1').classList.remove('hidden');
+    }
+
+    function parentVerifyOtp() {
+      const code = document.getElementById('parent-otp-input').value.trim();
+      if (code !== DEMO_OTP) return showCustomAlert('رمز التحقق غير صحيح');
+      document.getElementById('parent-greeting').innerText = `مرحباً ${currentParentData.parent_name} 👋`;
+      renderParentStudentsList();
+      renderPickupOptions();
+      document.getElementById('parent-step-2').classList.add('hidden');
+      document.getElementById('parent-step-3').classList.remove('hidden');
+    }
+
+    function renderParentStudentsList() {
+      const container = document.getElementById('parent-students-list');
+      container.innerHTML = '';
+      currentSelectedStudentIds = [];
+      currentParentData.students.forEach((st, idx) => {
+        const grad = isGrad(st.class);
+        const card = document.createElement('label');
+        card.className = `p-4 rounded-2xl border-2 transition-all flex items-center justify-between ${grad ? 'bg-slate-50 border-slate-200 opacity-60' : 'bg-emerald-50/50 border-emerald-200 hover:border-emerald-500 cursor-pointer'}`;
+        card.innerHTML = `
+          <div class="flex items-center gap-3">
+            <input type="checkbox" value="${esc(st.id)}" ${grad ? 'disabled' : 'checked'}
+                   onchange="parentOnCheckboxChange(this.value, this.checked)" class="w-6 h-6 rounded-lg accent-emerald-600">
+            <div>
+              <p class="font-black text-slate-800 text-base">${esc(st.name)}</p>
+              <p class="text-xs font-bold text-slate-500">${esc(st.class)}</p>
+            </div>
+          </div>
+          ${grad ? '<span class="text-xs bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full font-bold">خريج 🎓</span>' : '<span class="text-xs text-emerald-700 font-bold bg-white px-2 py-1 rounded-lg border border-emerald-200">طالب حالي</span>'}`;
+        if (!grad) currentSelectedStudentIds.push(String(st.id));
+        container.appendChild(card);
+      });
+    }
+
+    function renderPickupOptions() {
+      const sel = document.getElementById('parent-pickup-select');
+      let h = `<option value="self">${esc(currentParentData.parent_name)} (ولي الأمر)</option>`;
+      currentParentData.authorized_pickups.forEach((a, i) => {
+        h += `<option value="${i}">${esc(a.name)} (${esc(a.relation || 'مفوَّض')}) ✓ مفوَّض</option>`;
+      });
+      h += `<option value="other">شخص آخر غير مسجل...</option>`;
+      sel.innerHTML = h;
+      onPickupSelectChange();
+    }
+
+    function onPickupSelectChange() {
+      const other = document.getElementById('parent-pickup-select').value === 'other';
+      document.getElementById('parent-pickup-person').classList.toggle('hidden', !other);
+      document.getElementById('pickup-warning').classList.toggle('hidden', !other);
+    }
+
+    function parentOnCheckboxChange(id, checked) {
+      id = String(id);
+      if (checked) { if (!currentSelectedStudentIds.includes(id)) currentSelectedStudentIds.push(id); }
+      else currentSelectedStudentIds = currentSelectedStudentIds.filter(x => x !== id);
+    }
+
+    function parentToggleSelectAll() {
+      const boxes = document.querySelectorAll('#parent-students-list input[type="checkbox"]:not(:disabled)');
+      const allChecked = Array.from(boxes).every(c => c.checked);
+      currentSelectedStudentIds = [];
+      boxes.forEach(c => { c.checked = !allChecked; if (!allChecked) currentSelectedStudentIds.push(c.value); });
+      document.getElementById('btn-select-all').innerText = allChecked ? "تحديد الكل ✓" : "إلغاء التحديد ✕";
+    }
+
+    async function parentSubmitRequest() {
+      if (currentSelectedStudentIds.length === 0) return showCustomAlert('يرجى تحديد طالب واحد على الأقل للاستئذان');
+
+      const selVal = document.getElementById('parent-pickup-select').value;
+      let pickupPerson, authorized = true;
+      if (selVal === 'self') pickupPerson = `${currentParentData.parent_name} (ولي الأمر)`;
+      else if (selVal === 'other') {
+        pickupPerson = document.getElementById('parent-pickup-person').value.trim();
+        if (!pickupPerson) return showCustomAlert('فضلاً اكتب اسم الشخص المستلم');
+        authorized = false;
+      } else {
+        const a = currentParentData.authorized_pickups[+selVal];
+        pickupPerson = `${a.name} (${a.relation || 'مفوَّض'})`;
+      }
+      const pickupTime = document.getElementById('parent-pickup-time').value || 'الآن';
+      const carInfo = document.getElementById('parent-car-info').value.trim() || 'لم تُحدد';
+      const selected = currentParentData.students.filter(s => currentSelectedStudentIds.includes(String(s.id)));
+
+      for (const st of selected) {
+        const order = {
+          student_name: st.name, student_class: st.class, parent_name: currentParentData.parent_name,
+          parent_national_id: currentParentData.parent_id, pickup_person: pickupPerson, pickup_authorized: authorized,
+          pickup_time: pickupTime, car_info: carInfo, status: S_PENDING
+        };
+        if (isLiveSupabase) {
+          const { error } = await supabaseClient.from('permission_requests').insert([order]);
+          if (error) { console.error(error); return showCustomAlert('تعذر إرسال الطلب، يرجى المحاولة لاحقاً'); }
+        } else {
+          localMockDB.orders.unshift({ ...order, id: uid('req'), created_at: new Date().toISOString() });
+        }
+      }
+      if (!isLiveSupabase) saveLocalMockDB();
+
+      document.getElementById('parent-summary-box').innerHTML = `
+        <div><strong>الطلاب:</strong> ${selected.map(s => esc(s.name)).join('، ')}</div>
+        <div><strong>المستلم:</strong> ${esc(pickupPerson)} ${authorized ? '' : '<span class="text-amber-700">(غير مسجل)</span>'}</div>
+        <div><strong>الوقت:</strong> ${esc(pickupTime)}</div>
+        <div><strong>السيارة:</strong> ${esc(carInfo)}</div>`;
+      document.getElementById('parent-step-3').classList.add('hidden');
+      document.getElementById('parent-step-4').classList.remove('hidden');
+    }
+
+    function parentResetAll() {
+      ['parent-national-id', 'parent-pickup-person', 'parent-pickup-time', 'parent-car-info'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('parent-step-4').classList.add('hidden');
+      document.getElementById('parent-step-1').classList.remove('hidden');
+    }
+
+    // ==========================================
+    // 📋 الطلبات
+    // ==========================================
+    async function refreshOrders() {
+      if (isLiveSupabase) {
+        try {
+          const { data, error } = await supabaseClient.from('permission_requests').select('*').order('created_at', { ascending: false });
+          if (error) throw error;
+          ordersCache = data || [];
+        } catch (e) { console.error(e); showCustomAlert('تعذر جلب الطلبات من السحابة'); }
+      } else {
+        ordersCache = localMockDB.orders;
+      }
+
+      const tbody = document.getElementById('admin-orders-table');
+      const emptyMsg = document.getElementById('no-orders-msg');
+      tbody.innerHTML = '';
+      emptyMsg.classList.toggle('hidden', ordersCache.length > 0);
+
+      ordersCache.forEach(ord => {
+        let badge = "bg-amber-100 text-amber-800 border-amber-200";
+        if (ord.status === S_READY) badge = "bg-blue-100 text-blue-800 border-blue-200";
+        if (ord.status === S_DONE) badge = "bg-emerald-100 text-emerald-800 border-emerald-200";
+        const unauth = ord.pickup_authorized === false;
+        const parentCell = ord.parent_national_id
+          ? `<button onclick="openParentDetails('${esc(ord.parent_national_id)}')" class="text-slate-700 hover:text-emerald-700 hover:underline font-bold text-right">${esc(ord.parent_name || '-')}</button>`
+          : esc(ord.parent_name || '-');
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition " + (unauth && ord.status !== S_DONE ? 'bg-amber-50/40' : '');
+        tr.innerHTML = `
+          <td class="p-4 font-black text-slate-900">${esc(ord.student_name)}</td>
+          <td class="p-4 font-bold text-slate-500">${esc(ord.student_class || '-')}</td>
+          <td class="p-4">${parentCell}</td>
+          <td class="p-4 font-bold ${unauth ? 'text-amber-800' : 'text-emerald-800'}">
+            ${esc(ord.pickup_person || 'ولي الأمر')}
+            ${unauth ? '<div class="text-[11px] font-black text-amber-700 mt-0.5">⚠️ غير مسجل - تحقق من الهوية</div>' : ''}
+          </td>
+          <td class="p-4 font-mono font-bold">${esc(ord.pickup_time || 'الآن')}<div class="text-[11px] text-slate-400 font-sans">طُلب ${esc(fmtTime(ord.created_at))}</div></td>
+          <td class="p-4 text-slate-500">${esc(ord.car_info || '-')}</td>
+          <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-black border whitespace-nowrap ${badge}">${esc(ord.status)}</span></td>
+          <td class="p-4 text-center">
+            ${ord.status === S_PENDING ? `<button onclick="updateOrderStatus('${esc(ord.id)}','ready')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-sm whitespace-nowrap">تجهيز الطالب 🔔</button>` : ''}
+            ${ord.status === S_READY ? `<button onclick="updateOrderStatus('${esc(ord.id)}','done')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-sm whitespace-nowrap">تأكيد الخروج ✓</button>` : ''}
+            ${ord.status === S_DONE ? `<span class="text-slate-400 text-xs font-bold">مكتمل بالسلامة</span>` : ''}
+          </td>`;
+        tbody.appendChild(tr);
+      });
+      updateStats();
+    }
+
+    async function updateOrderStatus(orderId, step) {
+      const next = step === 'ready' ? S_READY : S_DONE;
+      const ord = ordersCache.find(x => String(x.id) === String(orderId)) || {};
+      const ok = await askConfirm(step === 'ready' ? 'تجهيز الطالب عند البوابة؟' : 'تأكيد خروج الطالب؟',
+        `<p>الطالب: <b>${esc(ord.student_name || '')}</b></p>
+         <p>المستلم: <b>${esc(ord.pickup_person || '')}</b></p>
+         ${ord.pickup_authorized === false ? '<p class="mt-2 p-2 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 font-black">⚠️ المستلم غير مسجل، تأكد من هويته قبل التسليم.</p>' : ''}
+         <p class="mt-2">ستتغير حالة الطلب إلى: <b>${esc(next)}</b></p>`,
+        step === 'ready' ? 'نعم، جهّز الطالب' : 'نعم، تم التسليم');
+      if (!ok) return;
+      if (isLiveSupabase) {
+        const { error } = await supabaseClient.from('permission_requests').update({ status: next }).eq('id', orderId);
+        if (error) { console.error(error); return showCustomAlert('تعذر تحديث حالة الطلب'); }
+      } else {
+        const o = localMockDB.orders.find(x => String(x.id) === String(orderId));
+        if (o) { o.status = next; saveLocalMockDB(); }
+      }
+      refreshOrders();
+    }
+
+    function updateStats() {
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+      set('stat-today', ordersCache.filter(o => isToday(o.created_at)).length);
+      set('stat-pending', ordersCache.filter(o => o.status === S_PENDING).length);
+      set('stat-parents', parentsCache.filter(p => !p.is_former).length);
+      const ids = new Set();
+      parentsCache.forEach(p => p.students.forEach(s => { if (!isGrad(s.class)) ids.add(String(s.id)); }));
+      set('stat-students', ids.size);
+      set('orders-count', ordersCache.filter(o => o.status !== S_DONE).length);
+    }
+
+    function matchParentOrder(p, o) {
+      return o.parent_national_id ? o.parent_national_id === p.parent_id : o.parent_name === p.parent_name;
+    }
+
+    // ==========================================
+    // 👥 سجل أولياء الأمور
+    // ==========================================
+    function renderParentsRegistry() {
+      const q = (document.getElementById('parents-search').value || '').trim().toLowerCase();
+      const f = document.getElementById('parents-filter').value;
+      const list = parentsCache.filter(p => {
+        if (f === 'former') { if (!p.is_former) return false; }
+        else if (f !== 'all' && p.is_former) return false;
+        if (f === 'verified' && !p.phone_verified) return false;
+        if (f === 'unverified' && p.phone_verified) return false;
+        if (f === 'notes' && !p.parent_notes) return false;
+        if (!q) return true;
+        const hay = [p.parent_name, p.parent_id, p.parent_phone, p.parent_alt_phone, p.parent_email, p.parent_relation, p.parent_notes,
+          ...p.students.map(s => `${s.name} ${s.nid || ''} ${s.class}`),
+          ...p.transferred_students.map(t => `${t.name} ${t.to_name || ''} ${t.reason || ''}`),
+          ...p.authorized_pickups.map(a => `${a.name} ${a.relation || ''} ${a.nid || ''} ${a.phone || ''}`)].join(' ').toLowerCase();
+        return matchQuery(hay, q);
+      });
+
+      const active = parentsCache.filter(p => !p.is_former);
+      const formers = parentsCache.length - active.length;
+      const totalStudents = new Set(active.flatMap(p => p.students.map(s => String(s.id)))).size;
+      document.getElementById('parents-count-label').innerText =
+        `${active.length} ولي أمر حالي · ${totalStudents} طالب مرتبط` + (formers ? ` · ${formers} سابق` : '') + ` · المعروض ${list.length}`;
+      document.getElementById('parents-grid').innerHTML = list.map(parentCardHtml).join('');
+      document.getElementById('no-parents-msg').classList.toggle('hidden', list.length > 0);
+    }
+
+    function parentCardHtml(p) {
+      const reqCount = ordersCache.filter(o => matchParentOrder(p, o)).length;
+      const nid = esc(p.parent_id);
+      return `
+      <div class="${p.is_former ? 'bg-slate-50 border-dashed border-slate-300' : 'bg-white ' + (p.parent_notes ? 'border-amber-300' : 'border-slate-200')} rounded-3xl border shadow-sm p-5 space-y-4">
+        <div class="flex items-start justify-between gap-3">
+          <button onclick="openParentDetails('${nid}')" class="flex items-center gap-3 text-right">
+            <div class="w-12 h-12 shrink-0 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-lg">${esc((p.parent_name || '؟').charAt(0))}</div>
+            <div>
+              <p class="font-black text-slate-900 hover:text-emerald-700">${esc(p.parent_name)}</p>
+              <div class="flex gap-1.5 mt-1 flex-wrap">
+                ${p.is_former ? '<span class="text-[11px] bg-slate-700 text-white px-2 py-0.5 rounded-full font-bold">ولي أمر سابق</span>' : ''}
+                ${receivedTransfers(p).length ? '<span class="text-[11px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full font-bold">🔄 انتقلت إليه الولاية</span>' : ''}
+                <span class="text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-bold">${esc(p.parent_relation)}</span>
+                ${p.phone_verified
+                  ? '<span class="text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">✓ موثّق أبشر</span>'
+                  : '<span class="text-[11px] bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full font-bold">غير موثّق</span>'}
+                ${p.parent_notes ? '<span class="text-[11px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full font-bold">⚠️ ملاحظة</span>' : ''}
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="bg-slate-50 rounded-xl p-2.5"><p class="text-slate-400 font-bold">🪪 رقم الهوية</p><p class="font-black text-slate-800 ltr text-right mt-0.5">${esc(maskNid(p.parent_id))}</p></div>
+          <div class="bg-slate-50 rounded-xl p-2.5"><p class="text-slate-400 font-bold">📱 الجوال</p><a href="tel:${esc(p.parent_phone)}" class="block font-black text-emerald-700 ltr text-right mt-0.5">${esc(maskPhone(p.parent_phone))}</a></div>
+          <div class="bg-slate-50 rounded-xl p-2.5"><p class="text-slate-400 font-bold">📞 جوال بديل</p><p class="font-black text-slate-800 ltr text-right mt-0.5">${esc(p.parent_alt_phone ? maskPhone(p.parent_alt_phone) : '—')}</p></div>
+          <div class="bg-slate-50 rounded-xl p-2.5 min-w-0"><p class="text-slate-400 font-bold">✉️ البريد</p><p class="font-black text-slate-800 ltr text-right mt-0.5 truncate">${esc(maskEmail(p.parent_email))}</p></div>
+        </div>
+        <div class="flex flex-wrap gap-1.5">
+          ${p.students.map(s => `<span class="text-[11px] font-bold px-2.5 py-1 rounded-full ${isGrad(s.class) ? 'bg-slate-100 text-slate-500' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'}">🎒 ${esc(s.name.split(' ')[0])} · ${esc(isGrad(s.class) ? 'خريج' : s.class.replace('الصف ', '').replace(' ابتدائي', ''))}</span>`).join('')}
+          ${p.transferred_students.map(t => `<span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 border border-slate-200">🔄 ${esc(t.name.split(' ')[0])} ← ${esc(t.to_name || '-')}${t.reason ? ' · ' + esc(t.reason) : ''}</span>`).join('')}
+        </div>
+        <div class="flex items-center justify-between border-t border-slate-100 pt-3 gap-2">
+          <p class="text-[11px] text-slate-500 font-bold">🛡️ ${p.authorized_pickups.length} مفوَّض · 📋 ${reqCount} طلب</p>
+          <div class="flex gap-1.5">
+            <button onclick="openParentDetails('${nid}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">عرض</button>
+            ${p.is_former ? '' : `
+            <button onclick="openParentEdit('${nid}')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-bold">تعديل</button>
+            <button onclick="openTransfer('${nid}')" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded-lg text-xs font-bold">🔄 نقل الولاية</button>`}
+            <button onclick="deleteParent('${nid}')" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold">🗑️</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function toggleRevealSensitive() {
+      revealSensitive = !revealSensitive;
+      document.getElementById('btn-reveal').innerText = revealSensitive ? '🙈 إخفاء الأرقام' : '👁️ إظهار الأرقام كاملة';
+      renderParentsRegistry();
+    }
+
+    function openParentDetails(nid) {
+      const p = parentsCache.find(x => x.parent_id === nid);
+      if (!p) return showCustomAlert('لم يُعثر على ولي الأمر في السجل');
+      const orders = ordersCache.filter(o => matchParentOrder(p, o)).slice(0, 10);
+      const info = (label, val, ltr) => `<div class="bg-slate-50 rounded-xl p-3"><p class="text-[11px] text-slate-400 font-bold">${label}</p><p class="font-black text-slate-800 text-sm mt-0.5 ${ltr ? 'ltr text-right' : ''} break-all">${val}</p></div>`;
+
+      document.getElementById('parent-details-body').innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-2xl">${esc(p.parent_name.charAt(0))}</div>
+          <div>
+            <p class="text-xl font-black text-slate-900">${esc(p.parent_name)}</p>
+            <p class="text-xs font-bold text-slate-500">${esc(p.parent_relation)} · ${p.phone_verified ? '<span class="text-emerald-700">✓ الجوال موثّق ومطابق للهوية في أبشر</span>' : '<span class="text-rose-700">الجوال غير موثّق</span>'}</p>
+          </div>
+        </div>
+        ${p.parent_notes ? `<div class="bg-amber-50 border border-amber-300 rounded-2xl p-3 text-sm font-bold text-amber-900">⚠️ ${esc(p.parent_notes)}</div>` : ''}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          ${info('🪪 رقم الهوية الوطنية', esc(p.parent_id), true)}
+          ${info('📱 الجوال الأساسي (OTP)', `<a class="text-emerald-700" href="tel:${esc(p.parent_phone)}">${esc(p.parent_phone)}</a>`, true)}
+          ${info('📞 جوال بديل', p.parent_alt_phone ? `<a class="text-emerald-700" href="tel:${esc(p.parent_alt_phone)}">${esc(p.parent_alt_phone)}</a>` : '—', true)}
+          ${info('✉️ البريد الإلكتروني', p.parent_email ? `<a class="text-emerald-700" href="mailto:${esc(p.parent_email)}">${esc(p.parent_email)}</a>` : '—', true)}
+        </div>
+        <div>
+          <h4 class="font-black text-sm text-slate-800 mb-2">🎒 الأبناء (${p.students.length})</h4>
+          <div class="space-y-2">${p.students.map(s => `
+            <div class="flex items-center justify-between p-3 rounded-xl border ${isGrad(s.class) ? 'bg-slate-50 border-slate-200' : 'bg-emerald-50/40 border-emerald-200'}">
+              <div>
+                <button onclick="openStudentDetails('${esc(s.id)}')" class="font-black text-sm text-slate-800 hover:text-emerald-700 hover:underline">${esc(s.name)}</button>
+                <p class="text-[11px] font-bold text-slate-400 ltr text-right">🪪 ${esc(s.nid ? maskNid(s.nid) : 'الهوية غير مسجلة')}</p>
+              </div>
+              <span class="text-xs font-bold text-slate-500">${esc(s.class)}</span>
+            </div>`).join('')}</div>
+        </div>
+        ${(() => {
+          const recv = receivedTransfers(p);
+          if (!recv.length && !p.transferred_students.length) return '';
+          const item = (t, txt) => `
+            <div class="p-3 rounded-xl border border-indigo-200 bg-indigo-50/40 text-xs space-y-0.5">
+              <p class="font-black text-slate-800 text-sm">${txt}</p>
+              <p class="font-bold text-slate-500">📅 ${t.date ? esc(new Date(t.date).toLocaleDateString('ar-SA')) : '—'} · السبب: ${esc(t.reason || 'غير محدد')}</p>
+              ${t.note ? `<p class="font-bold text-slate-500">📝 ${esc(t.note)}</p>` : ''}
+            </div>`;
+          return `<div>
+            <h4 class="font-black text-sm text-slate-800 mb-2">🔄 سجل نقل الولاية</h4>
+            <div class="space-y-2">
+              ${recv.map(t => item(t, `انتقلت إليه ولاية <b>${esc(t.name)}</b> من ${esc(t.from_name)} (${esc(t.from_relation || '-')}) <span class="ltr inline-block text-slate-400">${esc(t.from_nid)}</span>`)).join('')}
+              ${p.transferred_students.map(t => item(t, `نُقلت ولاية <b>${esc(t.name)}</b> إلى ${esc(t.to_name || '-')} <span class="ltr inline-block text-slate-400">${esc(t.to_nid || '')}</span>`)).join('')}
+            </div>
+          </div>`;
+        })()}
+        <div>
+          <h4 class="font-black text-sm text-slate-800 mb-2">🛡️ المفوَّضون بالاستلام (${p.authorized_pickups.length})</h4>
+          ${p.authorized_pickups.length ? `<div class="space-y-2">${p.authorized_pickups.map(a => `
+            <div class="p-3 rounded-xl border border-slate-200 bg-white text-xs flex flex-wrap gap-x-4 gap-y-1">
+              <span class="font-black text-slate-800 text-sm">${esc(a.name)}</span>
+              <span class="font-bold text-slate-500">${esc(a.relation || '-')}</span>
+              <span class="font-bold text-slate-500 ltr">🪪 ${esc(a.nid || '—')}</span>
+              <span class="font-bold text-slate-500 ltr">📱 ${esc(a.phone || '—')}</span>
+            </div>`).join('')}</div>` : '<p class="text-xs text-slate-400 font-bold">لا يوجد مفوَّضون - يُسلَّم الطالب لولي الأمر فقط.</p>'}
+        </div>
+        <div>
+          <h4 class="font-black text-sm text-slate-800 mb-2">📋 آخر طلبات الاستئذان</h4>
+          ${orders.length ? `<div class="space-y-1.5">${orders.map(o => `
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 text-xs">
+              <span class="font-bold text-slate-700">${esc(o.student_name)} ← ${esc(o.pickup_person)}</span>
+              <span class="font-bold text-slate-400 whitespace-nowrap">${esc(fmtTime(o.created_at))} · ${esc(o.status)}</span>
+            </div>`).join('')}</div>` : '<p class="text-xs text-slate-400 font-bold">لا توجد طلبات سابقة.</p>'}
+        </div>
+        <div class="flex gap-2 justify-end border-t pt-4">
+          <button onclick="closeModal('modal-parent-details')" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl">إغلاق</button>
+          ${p.is_former ? '' : `
+          <button onclick="closeModal('modal-parent-details'); openTransfer('${esc(p.parent_id)}')" class="px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-800 font-bold text-sm rounded-xl">🔄 نقل الولاية</button>
+          <button onclick="closeModal('modal-parent-details'); openParentEdit('${esc(p.parent_id)}')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl">✏️ تعديل البيانات</button>`}
+        </div>`;
+      openModal('modal-parent-details');
+    }
+
+    function exportParentsCSV() {
+      if (!parentsCache.length) return showCustomAlert('لا توجد بيانات للتصدير');
+      const cell = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+      const num = v => v ? cell('="' + v + '"') : cell('');
+      const header = ['اسم ولي الأمر', 'صلة القرابة', 'رقم الهوية', 'الجوال', 'جوال بديل', 'البريد الإلكتروني', 'الجوال موثّق', 'الأبناء (الهوية - الصف)', 'المفوَّضون بالاستلام', 'ملاحظات'];
+      const rows = parentsCache.map(p => [
+        cell(p.parent_name), cell(p.parent_relation), num(p.parent_id), num(p.parent_phone), num(p.parent_alt_phone),
+        cell(p.parent_email), cell(p.phone_verified ? 'نعم' : 'لا'),
+        cell(p.students.map(s => `${s.name} (${s.nid || 'بدون هوية'}) - ${s.class}`).join(' | ')),
+        cell(p.authorized_pickups.map(a => `${a.name} (${a.relation || '-'}) ${a.phone || ''}`).join(' | ')),
+        cell(p.parent_notes)
+      ].join(','));
+      const csv = '\uFEFF' + header.map(cell).join(',') + '\n' + rows.join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+      a.download = `سجل-أولياء-الأمور-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    // ==========================================
+    // 📝 نموذج ولي الأمر (مشترك بين التسجيل والتعديل)
+    // ==========================================
+    function fieldHtml(id, label, type, ph, extra = '') {
+      return `<div><label class="lbl">${label}</label><input type="${type}" id="${id}" placeholder="${ph}" ${extra} class="inp"></div>`;
+    }
+
+    function parentFormBodyHtml(pre) {
+      return `
+        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+          <h4 class="font-black text-sm text-slate-800">👤 بيانات ولي الأمر</h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            ${fieldHtml(pre + '-parent-nid', 'رقم الهوية الوطنية / الإقامة *', 'text', 'مثال: 1xxxxxxxxx', 'maxlength="10" inputmode="numeric" required')}
+            ${fieldHtml(pre + '-parent-name', 'اسم ولي الأمر الرباعي *', 'text', 'مشاري سعود الجميل', 'required')}
+            <div><label class="lbl">صلة القرابة بالطالب *</label><select id="${pre}-parent-relation" class="inp">${RELATIONS.map(r => `<option value="${r}">${r}</option>`).join('')}</select></div>
+            ${fieldHtml(pre + '-parent-phone', 'رقم الجوال (لاستلام OTP) *', 'tel', '05xxxxxxxx', 'maxlength="10" inputmode="numeric" required')}
+            ${fieldHtml(pre + '-parent-alt-phone', 'جوال بديل للطوارئ', 'tel', '05xxxxxxxx', 'maxlength="10" inputmode="numeric"')}
+            ${fieldHtml(pre + '-parent-email', 'البريد الإلكتروني (اختياري)', 'email', 'name@example.com', 'dir="ltr"')}
+          </div>
+          <label class="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer">
+            <input type="checkbox" id="${pre}-parent-verified" class="w-5 h-5 mt-0.5 accent-emerald-600">
+            <span class="text-xs font-bold text-slate-700">رقم الجوال موثّق ومسجّل باسم صاحب الهوية في أبشر<br><span class="text-slate-400 font-medium">يُفعَّل بعد التحقق من مطابقة الجوال مع رقم الهوية الوطنية</span></span>
+          </label>
+        </div>
+
+        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <h4 class="font-black text-sm text-slate-800">🛡️ المفوَّضون بالاستلام (اختياري)</h4>
+              <p class="text-[11px] text-slate-500 font-medium">أشخاص يحق لهم استلام الطالب نيابة عن ولي الأمر، ويظهرون له كخيارات عند الاستئذان.</p>
+            </div>
+            <button type="button" onclick="addAuthRow('${pre}-auth-container')" class="px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold whitespace-nowrap">➕ إضافة مفوَّض</button>
+          </div>
+          <div id="${pre}-auth-container" class="space-y-2"></div>
+        </div>
+
+        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2">
+          <h4 class="font-black text-sm text-slate-800">📝 ملاحظات وتنبيهات للإدارة</h4>
+          <textarea id="${pre}-parent-notes" rows="2" placeholder="مثال: يُسلَّم الطالب للأم أو الجد فقط، أو أي ظرف خاص يجب أن يعرفه الوكيل" class="inp"></textarea>
+        </div>
+
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-black text-sm text-slate-800 flex items-center gap-2">
+              <span>🎒 الأبناء المسجلون في المدرسة</span>
+              <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full" id="${pre}-students-counter">طالب واحد</span>
+            </h4>
+            <button type="button" onclick="addStudentRowTo('${pre}-students-container')" class="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold">➕ إضافة طالب</button>
+          </div>
+          <div id="${pre}-students-container" class="space-y-3"></div>
+        </div>`;
+    }
+
+    function addAuthRow(containerId, d = {}) {
+      const row = document.createElement('div');
+      row.className = 'auth-row grid grid-cols-2 sm:grid-cols-12 gap-2 p-3 bg-white border border-slate-200 rounded-xl items-end';
+      row.innerHTML = `
+        <div class="col-span-2 sm:col-span-4"><label class="lbl">الاسم *</label><input class="a-name inp" value="${esc(d.name)}" placeholder="عثمان سعود الجميل"></div>
+        <div class="sm:col-span-2"><label class="lbl">القرابة</label><input class="a-rel inp" value="${esc(d.relation)}" placeholder="عم"></div>
+        <div class="sm:col-span-3"><label class="lbl">رقم الهوية</label><input class="a-nid inp" maxlength="10" inputmode="numeric" value="${esc(d.nid)}" placeholder="1xxxxxxxxx"></div>
+        <div class="sm:col-span-2"><label class="lbl">الجوال</label><input class="a-phone inp" maxlength="10" inputmode="numeric" value="${esc(d.phone)}" placeholder="05xxxxxxxx"></div>
+        <div class="sm:col-span-1 flex justify-center"><button type="button" onclick="this.closest('.auth-row').remove()" class="p-2.5 text-rose-600 hover:bg-rose-50 rounded-xl border border-rose-200 text-xs">🗑️</button></div>`;
+      document.getElementById(containerId).appendChild(row);
+    }
+
+    function readAuthRows(containerId) {
+      return [...document.querySelectorAll('#' + containerId + ' .auth-row')].map(r => ({
+        name: r.querySelector('.a-name').value.trim(),
+        relation: r.querySelector('.a-rel').value.trim(),
+        nid: r.querySelector('.a-nid').value.trim(),
+        phone: r.querySelector('.a-phone').value.trim()
+      })).filter(a => a.name);
+    }
+
+    function addStudentRowTo(containerId, d = {}) {
+      const row = document.createElement('div');
+      row.className = 'student-row grid grid-cols-1 md:grid-cols-12 gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl items-end';
+      row.dataset.id = d.id != null ? String(d.id) : '';
+      row.innerHTML = `
+        <div class="md:col-span-5"><label class="lbl">اسم الطالب الرباعي *</label><input type="text" class="st-name inp" value="${esc(d.name)}" placeholder="سعود مشاري الجميل"></div>
+        <div class="md:col-span-3"><label class="lbl">رقم هوية الطالب</label><input type="text" class="st-nid inp" maxlength="10" inputmode="numeric" value="${esc(d.nid)}" placeholder="1xxxxxxxxx"></div>
+        <div class="md:col-span-3"><label class="lbl">الصف والشعبة *</label><select class="st-class inp">${classOptions(d.class || 'الصف الأول ابتدائي / أ')}</select></div>
+        <div class="md:col-span-1 flex justify-center"><button type="button" onclick="removeStudentRow(this, '${containerId}')" class="p-2.5 text-rose-600 hover:bg-rose-50 rounded-xl border border-rose-200 text-xs">🗑️</button></div>`;
+      document.getElementById(containerId).appendChild(row);
+      updateStudentsCounterText(containerId);
+    }
+
+    function removeStudentRow(btn, containerId) {
+      const c = document.getElementById(containerId);
+      if (c.querySelectorAll('.student-row').length <= 1) return showCustomAlert('يجب الإبقاء على طالب واحد على الأقل لولي الأمر!');
+      btn.closest('.student-row').remove();
+      updateStudentsCounterText(containerId);
+    }
+
+    function updateStudentsCounterText(containerId) {
+      const n = document.getElementById(containerId).querySelectorAll('.student-row').length;
+      const el = document.getElementById(containerId.replace('-students-container', '-students-counter'));
+      if (el) el.innerText = n === 1 ? 'طالب واحد' : n === 2 ? 'طالبان' : `${n} طلاب`;
+    }
+
+    function readStudentRows(containerId) {
+      return [...document.querySelectorAll('#' + containerId + ' .student-row')].map(r => ({
+        id: r.dataset.id || null,
+        name: r.querySelector('.st-name').value.trim(),
+        nid: r.querySelector('.st-nid').value.trim(),
+        class: r.querySelector('.st-class').value
+      })).filter(s => s.name);
+    }
+
+    function readParentForm(pre) {
+      const v = id => document.getElementById(`${pre}-${id}`).value.trim();
+      return {
+        parent_id: v('parent-nid'), parent_name: v('parent-name'), parent_relation: v('parent-relation'),
+        parent_phone: v('parent-phone'), parent_alt_phone: v('parent-alt-phone'), parent_email: v('parent-email'),
+        phone_verified: document.getElementById(`${pre}-parent-verified`).checked,
+        parent_notes: v('parent-notes'),
+        authorized_pickups: readAuthRows(`${pre}-auth-container`),
+        students: readStudentRows(`${pre}-students-container`)
+      };
+    }
+
+    function validateParent(d, ownerNid = d.parent_id, checkStudents = true) {
+      if (!NID_RE.test(d.parent_id)) return 'رقم الهوية يجب أن يتكون من 10 أرقام ويبدأ بـ 1 أو 2';
+      if (d.parent_name.split(/\s+/).filter(Boolean).length < 3) return 'اكتب اسم ولي الأمر ثلاثياً على الأقل';
+      if (!PHONE_RE.test(d.parent_phone)) return 'رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام';
+      if (d.parent_alt_phone && !PHONE_RE.test(d.parent_alt_phone)) return 'الجوال البديل يجب أن يبدأ بـ 05 ويتكون من 10 أرقام';
+      if (d.parent_alt_phone && d.parent_alt_phone === d.parent_phone) return 'الجوال البديل مطابق للجوال الأساسي';
+      if (d.parent_email && !EMAIL_RE.test(d.parent_email)) return 'صيغة البريد الإلكتروني غير صحيحة';
+      for (const a of d.authorized_pickups) {
+        if (a.nid && !NID_RE.test(a.nid)) return `رقم هوية المفوَّض (${a.name}) غير صحيح`;
+        if (a.phone && !PHONE_RE.test(a.phone)) return `رقم جوال المفوَّض (${a.name}) غير صحيح`;
+      }
+      if (!d.students.length) return 'أضف طالباً واحداً على الأقل';
+      if (!checkStudents) return '';
+      const seenNids = new Set();
+      for (const st of d.students) {
+        if (!st.nid) continue;
+        if (!NID_RE.test(st.nid)) return `رقم هوية الطالب (${st.name}) يجب أن يتكون من 10 أرقام ويبدأ بـ 1 أو 2`;
+        if (st.nid === d.parent_id) return `رقم هوية الطالب (${st.name}) مطابق لهوية ولي الأمر`;
+        if (seenNids.has(st.nid)) return `رقم هوية الطالب (${st.name}) مكرر`;
+        seenNids.add(st.nid);
+        const mine = parentsCache.find(p => p.parent_id === ownerNid);
+        if (!st.id && mine && mine.students.some(x => x.nid === st.nid)) return `الطالب صاحب الهوية ${st.nid} مسجل مسبقاً لدى ولي الأمر نفسه`;
+        const other = parentsCache.find(p => p.parent_id !== ownerNid && p.students.some(x => x.nid === st.nid));
+        if (other) return `الطالب صاحب الهوية ${st.nid} مسجل مسبقاً لدى ولي الأمر (${other.parent_name}). لتغيير ولي أمره استخدم "نقل الولاية".`;
+      }
+      return '';
+    }
+
+    function resetAddForm() {
+      document.getElementById('add-form-body').innerHTML = parentFormBodyHtml('add');
+      addStudentRowTo('add-students-container');
+    }
+
+    async function handleSaveParentAndStudents(e) {
+      e.preventDefault();
+      const d = readParentForm('add');
+      const err = validateParent(d);
+      if (err) return showCustomAlert(err);
+
+      await loadParents();
+      const existing = parentsCache.find(p => p.parent_id === d.parent_id);
+      const ok = existing
+        ? await askConfirm('ولي الأمر مسجل مسبقاً',
+            `<p>ولي الأمر <b>${esc(existing.parent_name)}</b> مسجل مسبقاً برقم الهوية نفسه.</p>
+             <p class="mt-2">سيتم تحديث بياناته وإضافة <b>${d.students.length}</b> من الأبناء إلى سجله:</p>
+             <ul class="list-disc pr-5 mt-1">${d.students.map(s => `<li>${esc(s.name)} · ${esc(s.class)}</li>`).join('')}</ul>`, 'نعم، احفظ')
+        : await askConfirm('تأكيد تسجيل ولي أمر جديد',
+            `<div class="space-y-1">
+               <p>👤 <b>${esc(d.parent_name)}</b> (${esc(d.parent_relation)})</p>
+               <p>🪪 الهوية: <span class="ltr inline-block">${esc(d.parent_id)}</span></p>
+               <p>📱 الجوال: <span class="ltr inline-block">${esc(d.parent_phone)}</span></p>
+               ${d.parent_email ? `<p>✉️ ${esc(d.parent_email)}</p>` : ''}
+               <p>🎒 الأبناء: ${d.students.map(s => esc(s.name)).join('، ')}</p>
+               ${d.authorized_pickups.length ? `<p>🛡️ المفوَّضون: ${d.authorized_pickups.map(a => esc(a.name)).join('، ')}</p>` : ''}
+             </div>`, 'نعم، احفظ');
+      if (!ok) return;
+
+      try {
+        if (isLiveSupabase) {
+          for (const st of d.students) {
+            const { data: stData, error: e1 } = await supabaseClient.from('students').insert([{ full_name: st.name, grade_class: st.class, national_id: st.nid || null }]).select();
+            if (e1) throw e1;
+            const { error: e2 } = await supabaseClient.from('parent_students').insert([{ ...parentRowFields(d), student_id: stData[0].id }]);
+            if (e2) throw e2;
+          }
+          const { error: e3 } = await supabaseClient.from('parent_students').update(parentRowFields(d)).eq('parent_national_id', d.parent_id);
+          if (e3) throw e3;
+        } else {
+          const students = d.students.map(s => ({ id: uid('st'), nid: s.nid, name: s.name, class: s.class }));
+          const target = localMockDB.parents.find(p => p.parent_id === d.parent_id);
+          if (target) Object.assign(target, { ...d, students: [...target.students, ...students] });
+          else localMockDB.parents.push({ ...d, students });
+          saveLocalMockDB();
+        }
+      } catch (x) {
+        console.error(x);
+        return showCustomAlert('تعذر الحفظ: ' + (x.message || ''));
+      }
+
+      showCustomAlert(`✅ تم حفظ ولي الأمر (${d.parent_name}) وربط (${d.students.length}) من الأبناء بنجاح!`);
+      resetAddForm();
+      switchAdminTab('parents');
+    }
+
+    let editingOriginalNid = null;
+
+    function openParentEdit(nid) {
+      const p = parentsCache.find(x => x.parent_id === nid);
+      if (!p) return;
+      editingOriginalNid = p.parent_id;
+      document.getElementById('edit-form-body').innerHTML = parentFormBodyHtml('edit');
+      const set = (id, v) => document.getElementById('edit-' + id).value = v || '';
+      set('parent-nid', p.parent_id);
+      set('parent-name', p.parent_name);
+      const relSel = document.getElementById('edit-parent-relation');
+      if (!RELATIONS.includes(p.parent_relation)) relSel.insertAdjacentHTML('beforeend', `<option value="${esc(p.parent_relation)}">${esc(p.parent_relation)}</option>`);
+      relSel.value = p.parent_relation;
+      set('parent-phone', p.parent_phone);
+      set('parent-alt-phone', p.parent_alt_phone);
+      set('parent-email', p.parent_email);
+      set('parent-notes', p.parent_notes);
+      document.getElementById('edit-parent-verified').checked = p.phone_verified;
+      p.authorized_pickups.forEach(a => addAuthRow('edit-auth-container', a));
+      p.students.forEach(s => addStudentRowTo('edit-students-container', s));
+      openModal('modal-parent-edit');
+    }
+
+    async function handleSaveParentEdit(e) {
+      e.preventDefault();
+      const d = readParentForm('edit');
+      const err = validateParent(d, editingOriginalNid);
+      if (err) return showCustomAlert(err);
+      const original = parentsCache.find(p => p.parent_id === editingOriginalNid);
+      if (!original) return showCustomAlert('لم يُعثر على ولي الأمر الأصلي، أعد فتح النافذة');
+      const oldNid = original.parent_id;
+      const nidChanged = d.parent_id !== oldNid;
+
+      if (nidChanged) {
+        const clash = parentsCache.find(p => p.parent_id === d.parent_id);
+        if (clash) return showCustomAlert(`رقم الهوية ${d.parent_id} مسجل مسبقاً باسم (${clash.parent_name})`);
+      }
+
+      const changes = diffParent(original, d);
+      if (!changes.length) return showCustomAlert('لم تقم بأي تغيير على البيانات');
+
+      const ok = await askConfirm('هل أنت متأكد من حفظ التعديلات؟',
+        `<p class="mb-2">سيتم تعديل بيانات <b>${esc(original.parent_name)}</b> كالتالي:</p>
+         <div class="space-y-1.5">${changes.map(c => `
+           <div class="p-2 rounded-lg bg-slate-50 border border-slate-200">
+             <p class="font-black text-slate-800">${c.label}</p>
+             ${c.from !== undefined ? `<p class="text-rose-700 line-through">${esc(c.from || '—')}</p><p class="text-emerald-700">${esc(c.to || '—')}</p>` : `<p class="text-slate-600">${esc(c.to)}</p>`}
+           </div>`).join('')}</div>
+         ${nidChanged ? '<p class="mt-3 p-2 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 font-black">⚠️ تغيير رقم الهوية يغيّر طريقة دخول ولي الأمر للمنصة، وسينتقل سجل طلباته السابقة للرقم الجديد.</p>' : ''}`,
+        'نعم، احفظ التعديلات');
+      if (!ok) return;
+
+      const btn = document.getElementById('btn-save-edit');
+      btn.disabled = true; btn.innerText = 'جارٍ الحفظ...';
+
+      try {
+        if (isLiveSupabase) {
+          if (nidChanged) {
+            const { error: eN } = await supabaseClient.from('parent_students').update({ parent_national_id: d.parent_id }).eq('parent_national_id', oldNid);
+            if (eN) throw eN;
+            await supabaseClient.from('permission_requests').update({ parent_national_id: d.parent_id }).eq('parent_national_id', oldNid);
+            await supabaseClient.from('parent_students').update({ transferred_to_nid: d.parent_id }).eq('transferred_to_nid', oldNid);
+          }
+          const keptIds = d.students.filter(s => s.id).map(s => String(s.id));
+          const removed = original.students.filter(s => !keptIds.includes(String(s.id)));
+          for (const s of d.students) {
+            if (s.id) {
+              const orig = original.students.find(o => String(o.id) === String(s.id));
+              const { error } = await supabaseClient.from('students').update({ full_name: s.name, grade_class: s.class, national_id: s.nid || null }).eq('id', orig ? orig.id : s.id);
+              if (error) throw error;
+            } else {
+              const { data: stData, error: e1 } = await supabaseClient.from('students').insert([{ full_name: s.name, grade_class: s.class, national_id: s.nid || null }]).select();
+              if (e1) throw e1;
+              const { error: e2 } = await supabaseClient.from('parent_students').insert([{ ...parentRowFields(d), student_id: stData[0].id }]);
+              if (e2) throw e2;
+            }
+          }
+          for (const s of removed) {
+            await supabaseClient.from('parent_students').delete().eq('parent_national_id', d.parent_id).eq('student_id', s.id);
+            await deleteOrphanStudents([s.id]);
+          }
+          const { error: e3 } = await supabaseClient.from('parent_students').update(parentRowFields(d)).eq('parent_national_id', d.parent_id);
+          if (e3) throw e3;
+        } else {
+          const target = localMockDB.parents.find(p => p.parent_id === oldNid);
+          Object.assign(target, { ...d, students: d.students.map(s => ({ id: s.id || uid('st'), nid: s.nid, name: s.name, class: s.class })) });
+          if (nidChanged) {
+            localMockDB.orders.forEach(o => { if (o.parent_national_id === oldNid) o.parent_national_id = d.parent_id; });
+            localMockDB.parents.forEach(p => (p.transferred_students || []).forEach(t => { if (t.to_nid === oldNid) t.to_nid = d.parent_id; }));
+          }
+          saveLocalMockDB();
+        }
+        editingOriginalNid = d.parent_id;
+        showCustomAlert('✅ تم حفظ التعديلات بنجاح');
+        closeModal('modal-parent-edit');
+        await loadParents();
+        renderParentsRegistry();
+      } catch (x) {
+        console.error(x);
+        showCustomAlert('تعذر الحفظ: ' + (x.message || ''));
+      } finally {
+        btn.disabled = false; btn.innerText = 'حفظ التعديلات ✓';
+      }
+    }
+
+    // ==========================================
+    // 🔄 نقل الولاية
+    // ==========================================
+    let transferFromNid = null;
+    let transferExisting = null;
+
+    function openTransfer(nid) {
+      const p = parentsCache.find(x => x.parent_id === nid);
+      if (!p || !p.students.length) return showCustomAlert('لا يوجد أبناء مرتبطون بولي الأمر هذا لنقل ولايتهم');
+      transferFromNid = nid;
+      transferExisting = null;
+      document.getElementById('transfer-from').innerHTML =
+        `ولي الأمر الحالي: <b>${esc(p.parent_name)}</b> (${esc(p.parent_relation)}) · <span class="ltr inline-block">${esc(p.parent_id)}</span>`;
+      document.getElementById('transfer-students').innerHTML = p.students.map(s => `
+        <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white cursor-pointer">
+          <input type="checkbox" class="tr-st w-5 h-5 accent-indigo-600" value="${esc(s.id)}" checked>
+          <span class="font-black text-sm text-slate-800">${esc(s.name)}</span>
+          <span class="text-xs font-bold text-slate-500 mr-auto">${esc(s.class)}</span>
+        </label>`).join('');
+      ['tr-nid', 'tr-name', 'tr-phone', 'tr-alt', 'tr-email', 'tr-note'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('tr-verified').checked = false;
+      document.getElementById('tr-relation').innerHTML = RELATIONS.map(r => `<option value="${r}" ${r === 'أم' ? 'selected' : ''}>${r}</option>`).join('');
+      document.getElementById('tr-reason').innerHTML = `<option value="">— بدون تحديد —</option>` + TRANSFER_REASONS.map(r => `<option value="${r}">${r}</option>`).join('');
+      setTransferFieldsLocked(false);
+      document.getElementById('transfer-existing-note').classList.add('hidden');
+      openModal('modal-transfer');
+    }
+
+    function setTransferFieldsLocked(lock) {
+      document.querySelectorAll('#modal-transfer .tr-new').forEach(el => {
+        el.disabled = lock;
+        el.classList.toggle('bg-slate-100', lock);
+        el.classList.toggle('text-slate-500', lock);
+      });
+    }
+
+    function onTransferNidInput() {
+      const nid = document.getElementById('tr-nid').value.trim();
+      const note = document.getElementById('transfer-existing-note');
+      const found = NID_RE.test(nid) && nid !== transferFromNid ? parentsCache.find(p => p.parent_id === nid) : null;
+      if (found) {
+        transferExisting = found;
+        document.getElementById('tr-name').value = found.parent_name;
+        document.getElementById('tr-relation').value = RELATIONS.includes(found.parent_relation) ? found.parent_relation : 'أخرى';
+        document.getElementById('tr-phone').value = found.parent_phone;
+        document.getElementById('tr-alt').value = found.parent_alt_phone;
+        document.getElementById('tr-email').value = found.parent_email;
+        document.getElementById('tr-verified').checked = found.phone_verified;
+        setTransferFieldsLocked(true);
+        note.innerText = `✓ ${found.parent_name} مسجل مسبقاً في النظام، وسيُضاف الأبناء إلى سجله.`;
+        note.classList.remove('hidden');
+      } else if (transferExisting) {
+        transferExisting = null;
+        ['tr-name', 'tr-phone', 'tr-alt', 'tr-email'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('tr-verified').checked = false;
+        setTransferFieldsLocked(false);
+        note.classList.add('hidden');
+      }
+    }
+
+    async function handleTransfer(e) {
+      e.preventDefault();
+      const from = parentsCache.find(p => p.parent_id === transferFromNid);
+      if (!from) return;
+      const selIds = [...document.querySelectorAll('#transfer-students .tr-st:checked')].map(c => c.value);
+      if (!selIds.length) return showCustomAlert('حدد طالباً واحداً على الأقل لنقل ولايته');
+      const moving = from.students.filter(s => selIds.includes(String(s.id)));
+
+      const nid = document.getElementById('tr-nid').value.trim();
+      if (nid === from.parent_id) return showCustomAlert('رقم هوية ولي الأمر الجديد مطابق لولي الأمر الحالي');
+      const existing = parentsCache.find(p => p.parent_id === nid) || null;
+
+      const v = id => document.getElementById(id).value.trim();
+      const newP = existing ? { ...existing } : normParent({
+        parent_id: nid, parent_name: v('tr-name'), parent_relation: v('tr-relation'),
+        parent_phone: v('tr-phone'), parent_alt_phone: v('tr-alt'), parent_email: v('tr-email'),
+        phone_verified: document.getElementById('tr-verified').checked, parent_notes: '', authorized_pickups: []
+      });
+      if (!existing) {
+        const err = validateParent({ ...newP, students: moving }, newP.parent_id, false);
+        if (err) return showCustomAlert(err);
+      }
+
+      const reason = v('tr-reason');
+      const note = v('tr-note');
+      const remaining = from.students.length - moving.length;
+      const ok = await askConfirm('هل أنت متأكد من نقل الولاية؟',
+        `<div class="space-y-2">
+           <p>من: <b>${esc(from.parent_name)}</b> (${esc(from.parent_relation)})</p>
+           <p>إلى: <b>${esc(newP.parent_name)}</b> (${esc(newP.parent_relation)}) · <span class="ltr inline-block">${esc(newP.parent_id)}</span>${existing ? ' <span class="text-emerald-700">· مسجل مسبقاً</span>' : ' <span class="text-indigo-700">· ولي أمر جديد</span>'}</p>
+           <p>الأبناء: ${moving.map(s => esc(s.name)).join('، ')}</p>
+           <p>السبب: ${esc(reason || 'غير محدد')}</p>
+           ${note ? `<p>ملاحظة: ${esc(note)}</p>` : ''}
+           <p class="p-2 rounded-lg bg-amber-50 border border-amber-300 text-amber-900">${remaining
+             ? `سيبقى ${esc(from.parent_name)} ولي أمر لـ ${remaining} من الأبناء الآخرين.`
+             : `سيصبح ${esc(from.parent_name)} ولي أمر سابق، ويبقى محفوظاً في السجل دون صلاحية طلب استئذان.`}</p>
+         </div>`, 'نعم، انقل الولاية');
+      if (!ok) return;
+
+      const btn = document.getElementById('btn-transfer');
+      btn.disabled = true; btn.innerText = 'جارٍ النقل...';
+      const now = new Date().toISOString();
+      try {
+        if (isLiveSupabase) {
+          for (const s of moving) {
+            const { error: e1 } = await supabaseClient.from('parent_students').update({
+              link_active: false, transfer_reason: reason || null, transfer_note: note || null, transfer_date: now,
+              transferred_to_nid: newP.parent_id, transferred_to_name: newP.parent_name
+            }).eq('parent_national_id', from.parent_id).eq('student_id', s.id);
+            if (e1) throw e1;
+            const { data: prev } = await supabaseClient.from('parent_students').select('student_id').eq('parent_national_id', newP.parent_id).eq('student_id', s.id);
+            if (prev && prev.length) {
+              const { error: e2 } = await supabaseClient.from('parent_students').update({
+                link_active: true, transfer_reason: null, transfer_note: null, transfer_date: null, transferred_to_nid: null, transferred_to_name: null
+              }).eq('parent_national_id', newP.parent_id).eq('student_id', s.id);
+              if (e2) throw e2;
+            } else {
+              const { error: e3 } = await supabaseClient.from('parent_students').insert([{ ...parentRowFields(newP), student_id: s.id, link_active: true }]);
+              if (e3) throw e3;
+            }
+          }
+        } else {
+          const src = localMockDB.parents.find(p => p.parent_id === from.parent_id);
+          src.students = src.students.filter(s => !selIds.includes(String(s.id)));
+          src.transferred_students = (src.transferred_students || []).concat(moving.map(s => ({
+            id: s.id, nid: s.nid || '', name: s.name, class: s.class, to_nid: newP.parent_id, to_name: newP.parent_name, reason, note, date: now
+          })));
+          let dst = localMockDB.parents.find(p => p.parent_id === newP.parent_id);
+          if (!dst) {
+            dst = { ...newP, students: [], transferred_students: [] };
+            delete dst.is_former;
+            localMockDB.parents.push(dst);
+          }
+          dst.transferred_students = (dst.transferred_students || []).filter(t => !selIds.includes(String(t.id)));
+          moving.forEach(s => { if (!dst.students.some(x => String(x.id) === String(s.id))) dst.students.push({ id: s.id, nid: s.nid || '', name: s.name, class: s.class }); });
+          saveLocalMockDB();
+        }
+        showCustomAlert(`✅ تم نقل ولاية (${moving.length}) من الأبناء إلى ${newP.parent_name}`);
+        closeModal('modal-transfer');
+        await loadParents();
+        renderParentsRegistry();
+      } catch (x) {
+        console.error(x);
+        showCustomAlert('تعذر نقل الولاية: ' + (x.message || ''));
+      } finally {
+        btn.disabled = false; btn.innerText = 'نقل الولاية ✓';
+      }
+    }
+
+    // حذف سجلات الطلاب التي لم تعد مرتبطة بأي ولي أمر
+    async function deleteOrphanStudents(ids) {
+      if (!ids.length) return;
+      const { data } = await supabaseClient.from('parent_students').select('student_id').in('student_id', ids);
+      const stillLinked = (data || []).map(r => String(r.student_id));
+      const orphans = ids.filter(id => !stillLinked.includes(String(id)));
+      if (orphans.length) await supabaseClient.from('students').delete().in('id', orphans);
+    }
+
+    async function deleteParent(nid) {
+      const p = parentsCache.find(x => x.parent_id === nid);
+      if (!p) return;
+      const ok = await askConfirm('هل أنت متأكد من الحذف؟',
+        `<p>سيتم حذف ولي الأمر <b>${esc(p.parent_name)}</b> وأبنائه من النظام نهائياً:</p>
+         <ul class="list-disc pr-5 mt-1">${p.students.map(s => `<li>${esc(s.name)}</li>`).join('')}</ul>
+         <p class="mt-2 text-rose-700 font-black">لا يمكن التراجع عن هذا الإجراء.</p>`, 'نعم، احذف', true);
+      if (!ok) return;
+      try {
+        if (isLiveSupabase) {
+          const { error } = await supabaseClient.from('parent_students').delete().eq('parent_national_id', nid);
+          if (error) throw error;
+          await deleteOrphanStudents(p.students.map(s => s.id).filter(Boolean));
+        } else {
+          localMockDB.parents = localMockDB.parents.filter(x => x.parent_id !== nid);
+          saveLocalMockDB();
+        }
+        showCustomAlert('🗑️ تم حذف ولي الأمر من السجل');
+        await loadParents();
+        renderParentsRegistry();
+      } catch (x) {
+        console.error(x);
+        showCustomAlert('تعذر الحذف: ' + (x.message || ''));
+      }
+    }
+
+    // ==========================================
+    // 🎓 الترحيل السنوي
+    // ==========================================
+    const PRIMARY_PROGRESSION = { 'الأول': 'الثاني', 'الثاني': 'الثالث', 'الثالث': 'الرابع', 'الرابع': 'الخامس', 'الخامس': 'السادس' };
+
+    function calculateNextPrimaryGrade(g) {
+      if (!g) return 'الصف الثاني ابتدائي / أ';
+      if (g.includes('السادس')) return 'تم التخرج الله يوفقه 🎓';
+      for (const [c, n] of Object.entries(PRIMARY_PROGRESSION)) if (g.includes(c)) return g.replace(c, n);
+      return g;
+    }
+
+    let allStudentsForPromotion = [];
+
+    // بحث مرن: يطابق كل كلمة على حدة، ويتجاهل الهمزات والتاء المربوطة
+    function normAr(t) {
+      return String(t || '').toLowerCase()
+        .replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[\u064B-\u0652\u0640]/g, '');
+    }
+    function matchQuery(hay, q) {
+      if (!q) return true;
+      const h = normAr(hay);
+      return normAr(q).split(/\s+/).filter(Boolean).every(w => h.includes(w));
+    }
+
+    function fillClassFilter(id, classes, allLabel = 'جميع الصفوف') {
+      const sel = document.getElementById(id);
+      const cur = sel.value;
+      const order = c => { const i = GRADES.findIndex(g => c.includes(g)); return (i < 0 ? 99 : i) * 10 + (c.includes('/ ب') ? 1 : 0); };
+      const uniq = [...new Set(classes)].sort((a, b) => order(a) - order(b));
+      sel.innerHTML = `<option value="">${allLabel}</option>` + uniq.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+      if (uniq.includes(cur)) sel.value = cur;
+    }
+
+    // ==========================================
+    // 🎒 سجل الطلاب
+    // ==========================================
+    function buildStudentsIndex() {
+      const map = new Map();
+      parentsCache.forEach(p => p.students.forEach(s => {
+        const k = String(s.id);
+        if (!map.has(k)) map.set(k, { ...s, guardians: [] });
+        map.get(k).guardians.push(p);
+      }));
+      return [...map.values()];
+    }
+
+    function renderStudentsRegistry() {
+      const all = buildStudentsIndex();
+      fillClassFilter('students-class-filter', all.map(s => s.class));
+      const q = (document.getElementById('students-search').value || '').trim();
+      const c = document.getElementById('students-class-filter').value;
+      const list = all.filter(s => (!c || s.class === c) && matchQuery(
+        [s.name, s.nid, s.class, ...s.guardians.map(g => `${g.parent_name} ${g.parent_id} ${g.parent_phone} ${g.parent_alt_phone}`)].join(' '), q));
+
+      document.getElementById('students-count-label').innerText =
+        `${all.filter(s => !isGrad(s.class)).length} طالب حالي` + (all.some(s => isGrad(s.class)) ? ` · ${all.filter(s => isGrad(s.class)).length} خريج` : '') + ` · المعروض ${list.length}`;
+      document.getElementById('no-students-msg').classList.toggle('hidden', list.length > 0);
+      document.getElementById('students-tbody').innerHTML = list.map(s => {
+        const g = s.guardians[0] || {};
+        return `
+        <tr class="hover:bg-emerald-50/50 cursor-pointer transition" onclick="openStudentDetails('${esc(s.id)}')">
+          <td class="p-4 font-black text-slate-900">${esc(s.name)}</td>
+          <td class="p-4 font-bold text-slate-500 ltr text-right">${esc(s.nid ? maskNid(s.nid) : '—')}</td>
+          <td class="p-4 font-bold ${isGrad(s.class) ? 'text-slate-400' : 'text-slate-600'}">${esc(s.class)}</td>
+          <td class="p-4 font-bold text-slate-700">${esc(g.parent_name || '-')} <span class="text-[11px] text-slate-400">(${esc(g.parent_relation || '-')})</span>${s.guardians.length > 1 ? ` <span class="text-[11px] text-emerald-700">+${s.guardians.length - 1}</span>` : ''}</td>
+          <td class="p-4 font-bold text-emerald-700 ltr text-right">${esc(g.parent_phone ? maskPhone(g.parent_phone) : '-')}</td>
+          <td class="p-4 text-center"><span class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold whitespace-nowrap">عرض ←</span></td>
+        </tr>`;
+      }).join('');
+    }
+
+    function openStudentDetails(id) {
+      const s = buildStudentsIndex().find(x => String(x.id) === String(id));
+      if (!s) return showCustomAlert('لم يُعثر على الطالب');
+      const history = [];
+      parentsCache.forEach(p => p.transferred_students.forEach(t => {
+        if (String(t.id) === String(id)) history.push({ ...t, from_name: p.parent_name, from_relation: p.parent_relation });
+      }));
+      const orders = ordersCache.filter(o => o.student_name === s.name).slice(0, 10);
+      const info = (label, val, ltr) => `<div class="bg-slate-50 rounded-xl p-3"><p class="text-[11px] text-slate-400 font-bold">${label}</p><p class="font-black text-slate-800 text-sm mt-0.5 ${ltr ? 'ltr text-right' : ''} break-all">${val}</p></div>`;
+
+      const guardianBlock = g => `
+        <div class="rounded-2xl border ${g.parent_notes ? 'border-amber-300' : 'border-emerald-200'} p-4 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <p class="font-black text-slate-900">${esc(g.parent_name)}</p>
+              <p class="text-xs font-bold text-slate-500">${esc(g.parent_relation)} · ${g.phone_verified ? '<span class="text-emerald-700">✓ موثّق أبشر</span>' : '<span class="text-rose-700">غير موثّق</span>'}</p>
+            </div>
+            <button onclick="closeModal('modal-student-details'); openParentDetails('${esc(g.parent_id)}')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold whitespace-nowrap">ملف ولي الأمر ←</button>
+          </div>
+          ${g.parent_notes ? `<div class="bg-amber-50 border border-amber-300 rounded-xl p-2.5 text-xs font-bold text-amber-900">⚠️ ${esc(g.parent_notes)}</div>` : ''}
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            ${info('🪪 هوية ولي الأمر', esc(g.parent_id), true)}
+            ${info('📱 الجوال الأساسي', `<a class="text-emerald-700" href="tel:${esc(g.parent_phone)}">${esc(g.parent_phone)}</a>`, true)}
+            ${info('📞 جوال بديل', g.parent_alt_phone ? `<a class="text-emerald-700" href="tel:${esc(g.parent_alt_phone)}">${esc(g.parent_alt_phone)}</a>` : '—', true)}
+            ${info('✉️ البريد', g.parent_email ? `<a class="text-emerald-700" href="mailto:${esc(g.parent_email)}">${esc(g.parent_email)}</a>` : '—', true)}
+          </div>
+          <div>
+            <p class="text-xs font-black text-slate-700 mb-1.5">🛡️ المفوَّضون بالاستلام</p>
+            ${g.authorized_pickups.length ? g.authorized_pickups.map(a => `
+              <div class="p-2.5 mb-1.5 rounded-xl bg-slate-50 text-xs flex flex-wrap gap-x-4 gap-y-1">
+                <span class="font-black text-slate-800">${esc(a.name)}</span><span class="font-bold text-slate-500">${esc(a.relation || '-')}</span>
+                <span class="font-bold text-slate-500 ltr">🪪 ${esc(a.nid || '—')}</span><span class="font-bold text-slate-500 ltr">📱 ${esc(a.phone || '—')}</span>
+              </div>`).join('') : '<p class="text-xs text-slate-400 font-bold">لا يوجد - يُسلَّم لولي الأمر فقط.</p>'}
+          </div>
+          ${(() => { const sib = g.students.filter(x => String(x.id) !== String(id)); return sib.length ? `<p class="text-xs font-bold text-slate-500">👦 الإخوة: ${sib.map(x => `<button class="text-emerald-700 hover:underline" onclick="openStudentDetails('${esc(x.id)}')">${esc(x.name)}</button>`).join('، ')}</p>` : ''; })()}
+        </div>`;
+
+      document.getElementById('student-details-body').innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-2xl">🎒</div>
+          <div>
+            <p class="text-xl font-black text-slate-900">${esc(s.name)}</p>
+            <p class="text-xs font-bold text-slate-500">${esc(s.class)} · <span class="ltr inline-block">🪪 ${esc(s.nid || 'الهوية غير مسجلة')}</span></p>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-black text-sm text-slate-800 mb-2">👤 ولي الأمر</h4>
+          <div class="space-y-3">${s.guardians.map(guardianBlock).join('')}</div>
+        </div>
+        ${history.length ? `<div>
+          <h4 class="font-black text-sm text-slate-800 mb-2">🔄 أولياء أمور سابقون</h4>
+          <div class="space-y-2">${history.map(t => `
+            <div class="p-3 rounded-xl border border-indigo-200 bg-indigo-50/40 text-xs space-y-0.5">
+              <p class="font-black text-slate-800 text-sm">${esc(t.from_name)} (${esc(t.from_relation || '-')}) ← ${esc(t.to_name || '-')}</p>
+              <p class="font-bold text-slate-500">📅 ${t.date ? esc(new Date(t.date).toLocaleDateString('ar-SA')) : '—'} · السبب: ${esc(t.reason || 'غير محدد')}</p>
+              ${t.note ? `<p class="font-bold text-slate-500">📝 ${esc(t.note)}</p>` : ''}
+            </div>`).join('')}</div>
+        </div>` : ''}
+        <div>
+          <h4 class="font-black text-sm text-slate-800 mb-2">📋 آخر طلبات الاستئذان</h4>
+          ${orders.length ? `<div class="space-y-1.5">${orders.map(o => `
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 text-xs gap-2">
+              <span class="font-bold text-slate-700">المستلم: ${esc(o.pickup_person)}</span>
+              <span class="font-bold text-slate-400 whitespace-nowrap">${esc(fmtTime(o.created_at))} · ${esc(o.status)}</span>
+            </div>`).join('')}</div>` : '<p class="text-xs text-slate-400 font-bold">لا توجد طلبات سابقة.</p>'}
+        </div>
+        <div class="flex justify-end border-t pt-4">
+          <button onclick="closeModal('modal-student-details')" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl">إغلاق</button>
+        </div>`;
+      closeModal('modal-parent-details');
+      openModal('modal-student-details');
+    }
+
+    async function loadPromoteStudentsList() {
+      await loadParents();
+      const seen = new Set();
+      allStudentsForPromotion = [];
+      parentsCache.forEach(p => p.students.forEach(st => {
+        if (seen.has(String(st.id))) return;
+        seen.add(String(st.id));
+        allStudentsForPromotion.push({ id: st.id, nid: st.nid || '', name: st.name, class: st.class, parent_name: p.parent_name, parent_id: p.parent_id });
+      }));
+
+      const tbody = document.getElementById('promote-students-tbody');
+      tbody.innerHTML = '';
+      allStudentsForPromotion.forEach((st, idx) => {
+        const next = calculateNextPrimaryGrade(st.class);
+        const grad = isGrad(st.class);
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition promote-row";
+        tr.dataset.search = `${st.name} ${st.nid} ${st.parent_name} ${st.parent_id} ${st.class}`.toLowerCase();
+        tr.dataset.cls = st.class;
+        tr.innerHTML = `
+          <td class="p-3.5 text-center"><input type="checkbox" id="promote-chk-${idx}" ${grad ? 'disabled' : 'checked'} class="w-5 h-5 rounded accent-emerald-600"></td>
+          <td class="p-3.5 font-black text-slate-800">${esc(st.name)}</td>
+          <td class="p-3.5 text-slate-500">${esc(st.parent_name || '-')}</td>
+          <td class="p-3.5 font-bold text-slate-600">${esc(st.class)}</td>
+          <td class="p-3.5"><input type="text" id="promote-target-${idx}" value="${esc(next)}" ${grad ? 'disabled' : ''}
+              class="p-2 border border-slate-300 rounded-xl text-xs font-bold w-full max-w-xs ${next.includes('التخرج') ? 'bg-amber-50 text-amber-900 border-amber-300 font-black' : 'bg-white text-emerald-800'}"></td>`;
+        tbody.appendChild(tr);
+      });
+      fillClassFilter('promote-class-filter', allStudentsForPromotion.map(s => s.class));
+      filterPromoteRows();
+    }
+
+    function filterPromoteRows() {
+      const q = (document.getElementById('promote-search').value || '').trim().toLowerCase();
+      const c = document.getElementById('promote-class-filter').value;
+      let shown = 0;
+      document.querySelectorAll('#promote-students-tbody .promote-row').forEach(tr => {
+        const ok = (!c || tr.dataset.cls === c) && matchQuery(tr.dataset.search, q);
+        tr.style.display = ok ? '' : 'none';
+        if (ok) shown++;
+      });
+      const total = allStudentsForPromotion.length;
+      document.getElementById('promote-count-label').innerText = shown === total ? `${total} طالب` : `المعروض ${shown} من ${total} طالب`;
+    }
+
+    function promoteSelectAll(status) {
+      document.querySelectorAll('#promote-students-tbody .promote-row').forEach(tr => {
+        if (tr.style.display === 'none') return;
+        const c = tr.querySelector('input[type="checkbox"]');
+        if (c && !c.disabled) c.checked = status;
+      });
+    }
+
+    async function executeBatchPromotion() {
+      const nSel = document.querySelectorAll('#promote-students-tbody input[type="checkbox"]:checked:not(:disabled)').length;
+      const nAll = document.querySelectorAll('#promote-students-tbody input[type="checkbox"]:not(:disabled)').length;
+      const ok = await askConfirm('هل أنت متأكد من ترحيل الصفوف؟',
+        `<p>سيتم ترقية <b>${nSel}</b> طالب إلى الصف التالي، ويبقى <b>${nAll - nSel}</b> في صفوفهم للإعادة.</p>`, 'نعم، رحّل الصفوف');
+      if (!ok) return;
+      let promoted = 0, held = 0;
+      for (let i = 0; i < allStudentsForPromotion.length; i++) {
+        const chk = document.getElementById(`promote-chk-${i}`);
+        if (!chk || chk.disabled) continue;
+        const st = allStudentsForPromotion[i];
+        if (!chk.checked) { held++; continue; }
+        const newGrade = document.getElementById(`promote-target-${i}`).value;
+        if (isLiveSupabase) {
+          const { error } = await supabaseClient.from('students').update({ grade_class: newGrade }).eq('id', st.id);
+          if (error) { console.error(error); continue; }
+        } else {
+          localMockDB.parents.forEach(p => { const f = p.students.find(s => String(s.id) === String(st.id)); if (f) f.class = newGrade; });
+        }
+        promoted++;
+      }
+      if (!isLiveSupabase) saveLocalMockDB();
+      showCustomAlert(`🎉 تمت عملية الترحيل بنجاح!\n• الطلاب المُرَقّون: ${promoted}\n• الباقون للإعادة: ${held}`);
+      loadPromoteStudentsList();
+    }
+
+    // ==========================================
+    // 🚀 التهيئة
+    // ==========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      initSupabase();
+      resetAddForm();
+      if (sessionStorage.getItem('is_admin_logged_in') === 'true') isAdminAuthenticated = true;
+      refreshOrders();
+      loadParents();
+    });
+  </script>
+</body>
+</html>
