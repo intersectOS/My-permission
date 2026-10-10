@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>منصة استئذاني - مدرسة ابتدائية إبن الهيثم (بنين)</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M100 14l70 25v57c0 47-30 79-70 95-40-16-70-48-70-95V39z' fill='%23065F46'/%3E%3Ccircle cx='80' cy='72' r='15' fill='%23fff'/%3E%3Cpath d='M58 140v-28a22 22 0 0 1 44 0v28z' fill='%23fff'/%3E%3Ccircle cx='126' cy='94' r='11' fill='%23A7F3D0'/%3E%3Cpath d='M110 142v-17a16 16 0 0 1 32 0v17z' fill='%23A7F3D0'/%3E%3Ccircle cx='150' cy='152' r='24' fill='%23F59E0B' stroke='%23fff' stroke-width='6'/%3E%3Cpath d='M139 152l8 8 14-15' fill='none' stroke='%23fff' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#04261E">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -13,15 +15,122 @@
     .inp { width: 100%; padding: .7rem; background: #fff; border: 1px solid #cbd5e1; border-radius: .75rem; font-size: .875rem; font-weight: 700; color: #1e293b; }
     .inp:focus { outline: none; border-color: #059669; }
     .lbl { display: block; font-size: .75rem; font-weight: 700; color: #334155; margin-bottom: .25rem; }
+
+    /* ===================== شاشة الافتتاح ===================== */
+    #intro{position:fixed;inset:0;z-index:200;display:flex;overflow-x:hidden;overflow-y:auto;
+      background:radial-gradient(90% 70% at 50% 30%,#0E4A3A 0%,#05261E 55%,#020F0B 100%);color:#fff;font-family:'Tajawal',sans-serif;transition:opacity .7s ease,transform .7s ease}
+    #intro.leave{opacity:0;transform:scale(1.06);pointer-events:none}
+    #intro .grid{position:fixed;inset:-50%;background-image:radial-gradient(rgba(110,231,183,.13) 1.2px,transparent 1.2px);background-size:34px 34px;
+      transform:perspective(600px) rotateX(58deg) translateY(10%);animation:gridMove 18s linear infinite;mask-image:radial-gradient(circle at 50% 40%,#000 0%,transparent 60%)}
+    @keyframes gridMove{to{background-position:0 340px}}
+    #intro .orb{position:fixed;border-radius:50%;filter:blur(70px);opacity:.55}
+    #intro .orb.a{width:420px;height:420px;background:#10B981;top:-140px;right:-120px;animation:float 9s ease-in-out infinite}
+    #intro .orb.b{width:360px;height:360px;background:#0891B2;bottom:-160px;left:-120px;opacity:.35;animation:float 11s ease-in-out infinite reverse}
+    @keyframes float{50%{transform:translate(30px,40px)}}
+    #intro .stage{position:relative;text-align:center;padding:64px 20px 28px;max-width:640px;width:100%;margin:auto}
+    #intro .logo{width:min(46vw,24vh,210px);height:auto;display:block;margin:0 auto;overflow:visible}
+    #intro .halo{position:absolute;left:50%;top:64px;width:min(46vw,24vh,210px);aspect-ratio:1;transform:translateX(-50%);border-radius:50%;
+      background:radial-gradient(circle,rgba(52,211,153,.45),transparent 65%);opacity:0;animation:halo 3s ease-in-out 2.6s infinite}
+    @keyframes halo{0%,100%{opacity:.15;transform:translateX(-50%) scale(.9)}50%{opacity:.55;transform:translateX(-50%) scale(1.15)}}
+    .lg-outline{stroke-dasharray:640;stroke-dashoffset:640;animation:draw 1.1s cubic-bezier(.65,0,.35,1) .2s forwards}
+    .lg-fill{opacity:0;animation:fade .6s ease 1s forwards}
+    .lg-pop{opacity:0;transform-box:fill-box;transform-origin:50% 100%;transform:scale(.3) translateY(20px);animation:pop .55s cubic-bezier(.34,1.56,.64,1) forwards}
+    .lg-parent{animation-delay:1.25s}.lg-child{animation-delay:1.5s}
+    .lg-hand{stroke-dasharray:20;stroke-dashoffset:20;animation:draw .35s ease 1.8s forwards}
+    .lg-badge{opacity:0;transform-box:fill-box;transform-origin:50% 50%;transform:scale(0) rotate(-90deg);animation:badge .6s cubic-bezier(.34,1.56,.64,1) 2s forwards}
+    .lg-check{stroke-dasharray:40;stroke-dashoffset:40;animation:draw .4s ease 2.45s forwards}
+    .lg-shine{opacity:0;animation:shine 1.4s ease 2.6s forwards}
+    @keyframes draw{to{stroke-dashoffset:0}}
+    @keyframes fade{to{opacity:1}}
+    @keyframes pop{to{opacity:1;transform:scale(1) translateY(0)}}
+    @keyframes badge{to{opacity:1;transform:scale(1) rotate(0)}}
+    @keyframes shine{0%{opacity:0;transform:translateX(-140px)}40%{opacity:.9}100%{opacity:0;transform:translateX(140px)}}
+    .in-up{opacity:0;transform:translateY(18px);animation:up .8s cubic-bezier(.2,.8,.2,1) forwards}
+    @keyframes up{to{opacity:1;transform:none}}
+    #intro .brand{font-weight:900;font-size:clamp(44px,11vw,72px);line-height:1.6;padding:.12em .1em 0;margin-top:4px;letter-spacing:-.5px;
+      background:linear-gradient(90deg,#fff 0%,#D1FAE5 45%,#6EE7B7 100%);-webkit-background-clip:text;background-clip:text;color:transparent;animation-delay:2.6s}
+    #intro .en{direction:ltr;font-weight:800;letter-spacing:.5em;font-size:12px;color:#34D399;margin-top:-6px;animation-delay:2.75s}
+    #intro .slogan{font-weight:900;font-size:clamp(21px,5.2vw,30px);margin-top:22px;line-height:1.5;animation-delay:3s}
+    #intro .slogan span{color:#FBBF24}
+    #intro .sub{font-weight:500;font-size:clamp(14px,3.6vw,17px);color:rgba(209,250,229,.78);margin:10px auto 0;max-width:470px;line-height:1.8;animation-delay:3.2s}
+    #intro .pills{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:22px}
+    #intro .pill{font-weight:700;font-size:13px;padding:7px 14px;border-radius:99px;background:rgba(255,255,255,.07);border:1px solid rgba(110,231,183,.25);backdrop-filter:blur(6px)}
+    #intro .pill:nth-child(1){animation-delay:3.4s}#intro .pill:nth-child(2){animation-delay:3.55s}#intro .pill:nth-child(3){animation-delay:3.7s}
+    #intro .go{position:relative;overflow:hidden;margin-top:30px;display:inline-flex;align-items:center;gap:10px;padding:17px 34px;border-radius:18px;border:0;cursor:pointer;
+      font-family:inherit;font-weight:900;font-size:clamp(17px,4.4vw,20px);color:#052E25;background:linear-gradient(135deg,#6EE7B7,#34D399 45%,#10B981);
+      box-shadow:0 14px 40px rgba(16,185,129,.45),inset 0 1px 0 rgba(255,255,255,.6);animation-delay:3.9s;transition:transform .2s,box-shadow .2s}
+    #intro .go:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 18px 50px rgba(16,185,129,.6)}
+    #intro .go:active{transform:scale(.97)}
+    #intro .go::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);transform:translateX(-120%);animation:sweep 2.8s ease 4.6s infinite}
+    @keyframes sweep{0%{transform:translateX(-120%)}45%,100%{transform:translateX(120%)}}
+    #intro .go .arr{display:inline-block;transition:transform .25s}
+    #intro .go:hover .arr{transform:translateX(-5px)}
+    #intro .foot{font-size:12px;font-weight:700;color:rgba(167,243,208,.55);margin-top:26px;animation-delay:4.1s}
+    #intro .skip{position:fixed;z-index:2;top:18px;left:18px;font-family:inherit;font-weight:700;font-size:13px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.15);border-radius:99px;padding:6px 14px;cursor:pointer}
+    #intro.fast *, #intro.fast *::before{animation-delay:0s!important;animation-duration:.01s!important}
+    #intro.fast .go::after{animation:none}
+    @media (prefers-reduced-motion:reduce){#intro *{animation-duration:.01s!important;animation-delay:0s!important}}
+    body.intro-lock,html:has(body.intro-lock){overflow:hidden}
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased intro-lock">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="sh-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0F7A5C"/><stop offset="1" stop-color="#033226"/></linearGradient>
+  <linearGradient id="sh-edge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6EE7B7"/><stop offset=".6" stop-color="#34D399"/><stop offset="1" stop-color="#22D3EE"/></linearGradient>
+  <linearGradient id="sh-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FDE68A"/><stop offset="1" stop-color="#F59E0B"/></linearGradient>
+  <linearGradient id="sh-child" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A7F3D0"/><stop offset="1" stop-color="#34D399"/></linearGradient>
+  <linearGradient id="sh-gloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <clipPath id="sh-clip"><path d="M100 14l70 25v57c0 47-30 79-70 95-40-16-70-48-70-95V39z"/></clipPath>
+  <symbol id="shield-mark" viewBox="0 0 200 200">
+    <path d="M100 14l70 25v57c0 47-30 79-70 95-40-16-70-48-70-95V39z" fill="url(#sh-bg)"/>
+    <path d="M100 14l70 25v57c0 47-30 79-70 95-40-16-70-48-70-95V39z" fill="url(#sh-gloss)"/>
+    <path d="M100 14l70 25v57c0 47-30 79-70 95-40-16-70-48-70-95V39z" fill="none" stroke="url(#sh-edge)" stroke-width="5"/>
+    <circle cx="80" cy="72" r="15" fill="#fff"/><path d="M58 140v-28a22 22 0 0 1 44 0v28z" fill="#fff"/>
+    <circle cx="126" cy="94" r="11" fill="url(#sh-child)"/><path d="M110 142v-17a16 16 0 0 1 32 0v17z" fill="url(#sh-child)"/>
+    <path d="M100 118l13 6" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="150" cy="152" r="23" fill="url(#sh-gold)" stroke="#fff" stroke-width="5"/>
+    <path d="M139 152l8 8 14-15" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+</defs></svg>
+
+<!-- ==================== شاشة الافتتاح التفاعلية ==================== -->
+<div id="intro" role="dialog" aria-label="منصة استئذاني">
+  <div class="grid"></div><div class="orb a"></div><div class="orb b"></div>
+  <button class="skip" onclick="skipIntro()">تخطّي ⏭</button>
+  <div class="stage">
+    <div class="halo"></div>
+    <svg class="logo" viewBox="0 0 200 200" aria-hidden="true">
+      <path class="lg-fill" d="M100 14l70 25v57c0 47-30 79-70 95-40-16-70-48-70-95V39z" fill="url(#sh-bg)"/>
+      <path class="lg-fill" d="M100 14l70 25v57c0 47-30 79-70 95-40-16-70-48-70-95V39z" fill="url(#sh-gloss)"/>
+      <g clip-path="url(#sh-clip)"><rect class="lg-shine" x="60" y="0" width="34" height="210" fill="#fff" opacity="0" transform="skewX(-18)" style="mix-blend-mode:overlay"/></g>
+      <path class="lg-outline" d="M100 14l70 25v57c0 47-30 79-70 95-40-16-70-48-70-95V39z" fill="none" stroke="url(#sh-edge)" stroke-width="5" stroke-linejoin="round"/>
+      <g class="lg-pop lg-parent"><circle cx="80" cy="72" r="15" fill="#fff"/><path d="M58 140v-28a22 22 0 0 1 44 0v28z" fill="#fff"/></g>
+      <g class="lg-pop lg-child"><circle cx="126" cy="94" r="11" fill="url(#sh-child)"/><path d="M110 142v-17a16 16 0 0 1 32 0v17z" fill="url(#sh-child)"/></g>
+      <path class="lg-hand" d="M100 118l13 6" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+      <circle class="lg-badge" cx="150" cy="152" r="23" fill="url(#sh-gold)" stroke="#fff" stroke-width="5"/>
+      <path class="lg-check" d="M139 152l8 8 14-15" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="brand in-up">استئذاني</div>
+    <div class="en in-up">ISTITHANI</div>
+    <div class="slogan in-up">لا نُسلِّم أبناءَنا إلا <span>لمن نثق بهم</span></div>
+    <p class="sub in-up">منصة رقمية تعزّز أمان أبنائنا وموثوقية الاستئذان في المدرسة؛ تحقّق بالهوية، ومفوَّضون معتمدون، وتوثيق كامل لكل خروج.</p>
+    <div class="pills">
+      <span class="pill in-up">🔐 تحقّق بالهوية</span>
+      <span class="pill in-up">🛡️ مفوَّضون معتمدون</span>
+      <span class="pill in-up">📋 توثيق كامل</span>
+    </div>
+    <button class="go in-up" onclick="enterPlatform()"><span>الدخول إلى منصة استئذاني</span><span class="arr">←</span></button>
+    <div class="foot in-up">مدرسة ابتدائية ابن الهيثم (بنين) · تعليم حائل</div>
+  </div>
+</div>
+
 
   <!-- ==================== الترويسة الرئيسية ==================== -->
   <header class="bg-emerald-800 text-white shadow-lg sticky top-0 z-40">
     <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-4 text-center md:text-right">
-        <div class="w-14 h-14 bg-white text-emerald-800 rounded-2xl flex items-center justify-center font-black text-2xl shadow-md border-2 border-emerald-400/40">🏫</div>
+        <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center shadow-md border border-emerald-400/30 p-1.5"><svg viewBox="0 0 200 200" class="w-full h-full"><use href="#shield-mark"/></svg></div>
         <div>
           <div class="flex items-center gap-2 justify-center md:justify-start">
             <span class="text-xs bg-emerald-700/80 text-emerald-200 px-2.5 py-0.5 rounded-full font-bold">وزارة التعليم 🇸🇦 تعليم حائل</span>
@@ -2178,6 +2287,37 @@
     setInterval(() => {
       if (isAdminAuthenticated && !document.getElementById('admin-panel-orders').classList.contains('hidden')) renderOrdersTable();
     }, 60000);
+
+
+    // ==========================================
+    // ✨ شاشة الافتتاح
+    // ==========================================
+    function closeIntro() {
+      const el = document.getElementById('intro');
+      if (!el) return;
+      el.classList.add('leave');
+      document.body.classList.remove('intro-lock');
+      try { sessionStorage.setItem('istithani_intro_seen', '1'); } catch (e) {}
+      setTimeout(() => el.remove(), 750);
+    }
+    function enterPlatform() { closeIntro(); }
+    function skipIntro() {
+      const el = document.getElementById('intro');
+      if (el && !el.classList.contains('fast')) el.classList.add('fast'); else closeIntro();
+    }
+    (function initIntro() {
+      const force = new URLSearchParams(location.search).has('intro');
+      let seen = false;
+      try { seen = sessionStorage.getItem('istithani_intro_seen') === '1'; } catch (e) {}
+      if (seen && !force) {
+        const el = document.getElementById('intro');
+        if (el) el.remove();
+        document.body.classList.remove('intro-lock');
+      }
+      document.addEventListener('keydown', e => {
+        if (document.getElementById('intro') && (e.key === 'Enter' || e.key === 'Escape')) closeIntro();
+      });
+    })();
 
     window.addEventListener('DOMContentLoaded', () => {
       initSupabase();
