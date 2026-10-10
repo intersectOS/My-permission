@@ -104,8 +104,9 @@
               <p id="pickup-warning" class="hidden text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2 mt-2">⚠️ المستلم غير مسجل ضمن المفوَّضين، وستتحقق الإدارة من هويته عند البوابة.</p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div><label class="lbl">تاريخ الاستئذان:</label><input type="date" id="parent-pickup-date" onchange="updatePickupDateLabel()" class="inp"><p id="parent-pickup-date-label" class="text-[11px] font-bold text-emerald-700 mt-1"></p></div>
               <div><label class="lbl">وقت الاستئذان التقريبي:</label><input type="time" id="parent-pickup-time" class="inp"></div>
-              <div><label class="lbl">نوع ولون السيارة (إن وُجد):</label><input type="text" id="parent-car-info" placeholder="مثال: يوكن أسود" class="inp"></div>
+              <div class="sm:col-span-2"><label class="lbl">نوع ولون السيارة (إن وُجد):</label><input type="text" id="parent-car-info" placeholder="مثال: يوكن أسود" class="inp"></div>
             </div>
           </div>
 
@@ -191,9 +192,27 @@
 
         <!-- 1) الطلبات -->
         <div id="admin-panel-orders" class="space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="font-black text-slate-800 text-lg">سجل استئذان اليوم المباشر</h3>
-            <button onclick="refreshOrders()" class="text-xs font-bold text-emerald-700 hover:underline flex items-center gap-1">🔄 تحديث يدوي</button>
+          <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 class="font-black text-slate-800 text-lg">سجل طلبات الاستئذان</h3>
+                <p id="today-banner" class="text-xs font-bold text-emerald-700"></p>
+              </div>
+              <button onclick="refreshOrders()" class="text-xs font-bold text-emerald-700 hover:underline flex items-center gap-1">🔄 تحديث يدوي</button>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <select id="orders-date-filter" onchange="onOrdersDateFilterChange()" class="inp bg-slate-50">
+                <option value="today">طلبات اليوم</option>
+                <option value="tomorrow">طلبات الغد</option>
+                <option value="upcoming">الطلبات القادمة</option>
+                <option value="past">الطلبات السابقة</option>
+                <option value="date">تاريخ محدد...</option>
+                <option value="all">جميع الطلبات</option>
+              </select>
+              <input type="date" id="orders-date-pick" onchange="renderOrdersTable()" class="inp bg-slate-50 hidden">
+              <input id="orders-search" oninput="renderOrdersTable()" placeholder="🔍 بحث بالطالب أو ولي الأمر أو المستلم" class="inp bg-slate-50 col-span-2">
+            </div>
+            <p id="orders-count-label" class="text-xs font-bold text-slate-500"></p>
           </div>
           <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="overflow-x-auto">
@@ -201,7 +220,7 @@
                 <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
                   <tr>
                     <th class="p-4">الطالب</th><th class="p-4">الصف والشعبة</th><th class="p-4">ولي الأمر</th><th class="p-4">المستلم</th>
-                    <th class="p-4">الوقت المجدول</th><th class="p-4">السيارة</th><th class="p-4 text-center">الحالة</th><th class="p-4 text-center">الإجراء</th>
+                    <th class="p-4">اليوم والتاريخ</th><th class="p-4">الوقت</th><th class="p-4">السيارة</th><th class="p-4 text-center">الحالة</th><th class="p-4 text-center">الإجراء</th>
                   </tr>
                 </thead>
                 <tbody id="admin-orders-table" class="divide-y divide-slate-100 font-medium"></tbody>
@@ -473,7 +492,7 @@
     const DEFAULT_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15bXNzcWR3ZXZraGZnYXF2YXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwMjczNzYsImV4cCI6MjEwNjYwMzM3Nn0.6qrPWgm9X6ZZE2it5sQDDl9HwZTteyw21nuRRalivPE";
     const DEFAULT_ADMIN_PASSWORD = "Ibnalhaytham@2026";
     const DEMO_OTP = "123456";
-    const DB_KEY = "isteathani_db_v4";
+    const DB_KEY = "isteathani_db_v5";
     const TRANSFER_REASONS = ['وفاة ولي الأمر', 'طلاق / انفصال', 'حكم حضانة', 'سفر أو إقامة خارج المنطقة', 'تنازل بالاتفاق', 'أخرى'];
 
     const S_PENDING = 'قيد الانتظار';
@@ -545,16 +564,31 @@
           }
         ],
         orders: [
-          { id: "req-104", student_name: "ريان خالد العنزي", student_class: "الصف السادس ابتدائي / ب", parent_name: "نورة محمد العنزي", parent_national_id: "1045678901", pickup_person: "سالم الحربي", pickup_authorized: false, pickup_time: "12:00", car_info: "هيونداي سوناتا رمادي", status: S_PENDING, created_at: minsAgo(2) },
-          { id: "req-103", student_name: "سعود مشاري الجميل", student_class: "الصف الثالث ابتدائي / أ", parent_name: "مشاري سعود الجميل", parent_national_id: "1001079175", pickup_person: "مشاري سعود الجميل (ولي الأمر)", pickup_authorized: true, pickup_time: "11:30", car_info: "جمس يوكن أسود", status: S_PENDING, created_at: minsAgo(6) },
-          { id: "req-102", student_name: "عبدالله فهد الشمري", student_class: "الصف الخامس ابتدائي / أ", parent_name: "فهد عبدالله الشمري", parent_national_id: "1034567890", pickup_person: "نايف فهد الشمري (أخ)", pickup_authorized: true, pickup_time: "10:45", car_info: "تويوتا كامري أبيض", status: S_READY, created_at: minsAgo(25) },
-          { id: "req-101", student_name: "ناصر سلطان الرشيدي", student_class: "الصف الرابع ابتدائي / أ", parent_name: "سلطان ناصر الرشيدي", parent_national_id: "1056789012", pickup_person: "سلطان ناصر الرشيدي (ولي الأمر)", pickup_authorized: true, pickup_time: "09:15", car_info: "لاندكروزر أبيض", status: S_DONE, created_at: minsAgo(140) }
-        ]
+          { id: "req-104", student_name: "ريان خالد العنزي", student_class: "الصف السادس ابتدائي / ب", parent_name: "نورة محمد العنزي", parent_national_id: "1045678901", pickup_person: "سالم الحربي", pickup_authorized: false, pickup_date: dayKey(0), pickup_time: "12:00", car_info: "هيونداي سوناتا رمادي", status: S_PENDING, created_at: minsAgo(2) },
+          { id: "req-105", student_name: "عبدالرحمن مشاري الجميل", student_class: "الصف الأول ابتدائي / ب", parent_name: "مشاري سعود الجميل", parent_national_id: "1001079175", pickup_person: "عثمان سعود الجميل (عم)", pickup_authorized: true, pickup_date: dayKey(1), pickup_time: "10:00", car_info: "جمس يوكن أسود", status: S_PENDING, created_at: minsAgo(15) },
+          { id: "req-103", student_name: "سعود مشاري الجميل", student_class: "الصف الثالث ابتدائي / أ", parent_name: "مشاري سعود الجميل", parent_national_id: "1001079175", pickup_person: "مشاري سعود الجميل (ولي الأمر)", pickup_authorized: true, pickup_date: dayKey(0), pickup_time: "11:30", car_info: "جمس يوكن أسود", status: S_PENDING, created_at: minsAgo(6) },
+          { id: "req-102", student_name: "عبدالله فهد الشمري", student_class: "الصف الخامس ابتدائي / أ", parent_name: "فهد عبدالله الشمري", parent_national_id: "1034567890", pickup_person: "نايف فهد الشمري (أخ)", pickup_authorized: true, pickup_date: dayKey(0), pickup_time: "10:45", car_info: "تويوتا كامري أبيض", status: S_READY, created_at: minsAgo(25) },
+          { id: "req-101", student_name: "ناصر سلطان الرشيدي", student_class: "الصف الرابع ابتدائي / أ", parent_name: "سلطان ناصر الرشيدي", parent_national_id: "1056789012", pickup_person: "سلطان ناصر الرشيدي (ولي الأمر)", pickup_authorized: true, pickup_date: dayKey(0), pickup_time: "09:15", car_info: "لاندكروزر أبيض", status: S_DONE, created_at: minsAgo(140) },
+          { id: "req-100", student_name: "محمد خالد العنزي", student_class: "الصف الثاني ابتدائي / أ", parent_name: "نورة محمد العنزي", parent_national_id: "1045678901", pickup_person: "محمد سالم العنزي (جد)", pickup_authorized: true, pickup_date: dayKey(-1), pickup_time: "11:00", car_info: "شيفروليه تاهو بني", status: S_DONE, created_at: minsAgo(60 * 25) }
+        ],
+        built_on: dayKey(0)
       };
     }
 
     let localMockDB;
     try { localMockDB = JSON.parse(localStorage.getItem(DB_KEY)) || buildDemoDB(); } catch (e) { localMockDB = buildDemoDB(); }
+    // بيانات العرض تبقى "حية": تُزاح تواريخ الطلبات لتواكب اليوم الحالي
+    (function shiftDemoDates() {
+      const today = dayKey(0);
+      if (!localMockDB.built_on || localMockDB.built_on === today) { localMockDB.built_on = today; return; }
+      const diff = Math.round((keyToDate(today) - keyToDate(localMockDB.built_on)) / 86400000);
+      localMockDB.orders.forEach(o => {
+        if (o.pickup_date) o.pickup_date = dayKey(diff, keyToDate(o.pickup_date));
+        if (o.created_at) o.created_at = new Date(new Date(o.created_at).getTime() + diff * 86400000).toISOString();
+      });
+      localMockDB.built_on = today;
+      try { localStorage.setItem(DB_KEY, JSON.stringify(localMockDB)); } catch (e) {}
+    })();
     function saveLocalMockDB() { try { localStorage.setItem(DB_KEY, JSON.stringify(localMockDB)); } catch (e) {} }
 
     // ==========================================
@@ -565,11 +599,55 @@
     }
     function uid(prefix) { return prefix + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
     function isGrad(c) { return (c || '').includes('تخرج'); }
+    // ===== التاريخ والوقت =====
+    function pad2(n) { return String(n).padStart(2, '0'); }
+    function dayKey(offset = 0, base = new Date()) {
+      const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + offset);
+      return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+    }
+    function keyToDate(k) { const [y, m, d] = String(k).split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); }
+    function fmtWeekday(d) { return d.toLocaleDateString('ar-SA-u-nu-latn', { weekday: 'long' }); }
+    function fmtHijri(d) {
+      try { return d.toLocaleDateString('ar-SA-u-ca-islamic-umalqura-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' }); }
+      catch (e) { return ''; }
+    }
+    function fmtGreg(d) { return d.toLocaleDateString('ar-SA-u-ca-gregory-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' }); }
+    function fmtFullDate(d) { return `${fmtWeekday(d)} ${fmtHijri(d)} · ${fmtGreg(d)}`; }
+    function fmtClock(t) {
+      if (!t || !/^\d{1,2}:\d{2}/.test(t)) return t || 'الآن';
+      let [h, m] = t.split(':').map(Number);
+      const suf = h < 12 ? 'ص' : 'م';
+      h = h % 12 || 12;
+      return `${h}:${pad2(m)} ${suf}`;
+    }
     function fmtTime(v) {
       if (!v) return '-';
       const d = new Date(v);
       if (isNaN(d)) return v;
-      return d.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+      return d.toLocaleTimeString('ar-SA-u-nu-latn', { hour: 'numeric', minute: '2-digit' });
+    }
+    function fmtDateTime(v) {
+      if (!v) return '-';
+      const d = new Date(v);
+      if (isNaN(d)) return v;
+      return `${fmtWeekday(d)} ${d.toLocaleDateString('ar-SA-u-ca-gregory-nu-latn', { day: 'numeric', month: 'numeric', year: 'numeric' })} · ${fmtTime(v)}`;
+    }
+    // تاريخ الاستئذان الفعلي للطلب: التاريخ المختار، أو تاريخ الإرسال للطلبات القديمة
+    function orderDayKey(o) {
+      if (o.pickup_date) return String(o.pickup_date).slice(0, 10);
+      const d = new Date(o.created_at);
+      return isNaN(d) ? dayKey(0) : dayKey(0, d);
+    }
+    function relDayLabel(k) {
+      const t = dayKey(0);
+      if (k === t) return 'اليوم';
+      if (k === dayKey(1)) return 'غداً';
+      if (k === dayKey(-1)) return 'أمس';
+      return '';
+    }
+    function orderWhen(o) {
+      const k = orderDayKey(o);
+      return `${fmtWeekday(keyToDate(k))} ${keyToDate(k).toLocaleDateString('ar-SA-u-ca-gregory-nu-latn', { day: 'numeric', month: 'numeric' })} · ${fmtClock(o.pickup_time)}`;
     }
     function isToday(v) {
       const d = new Date(v);
@@ -942,6 +1020,7 @@
       document.getElementById('parent-greeting').innerText = `مرحباً ${currentParentData.parent_name} 👋`;
       renderParentStudentsList();
       renderPickupOptions();
+      resetPickupDate();
       document.getElementById('parent-step-2').classList.add('hidden');
       document.getElementById('parent-step-3').classList.remove('hidden');
     }
@@ -1015,6 +1094,8 @@
         pickupPerson = `${a.name} (${a.relation || 'مفوَّض'})`;
       }
       const pickupTime = document.getElementById('parent-pickup-time').value || 'الآن';
+      const pickupDate = document.getElementById('parent-pickup-date').value || dayKey(0);
+      if (pickupDate < dayKey(0)) return showCustomAlert('لا يمكن اختيار تاريخ سابق لليوم');
       const carInfo = document.getElementById('parent-car-info').value.trim() || 'لم تُحدد';
       const selected = currentParentData.students.filter(s => currentSelectedStudentIds.includes(String(s.id)));
 
@@ -1022,10 +1103,14 @@
         const order = {
           student_name: st.name, student_class: st.class, parent_name: currentParentData.parent_name,
           parent_national_id: currentParentData.parent_id, pickup_person: pickupPerson, pickup_authorized: authorized,
-          pickup_time: pickupTime, car_info: carInfo, status: S_PENDING
+          pickup_date: pickupDate, pickup_time: pickupTime, car_info: carInfo, status: S_PENDING
         };
         if (isLiveSupabase) {
-          const { error } = await supabaseClient.from('permission_requests').insert([order]);
+          let { error } = await supabaseClient.from('permission_requests').insert([order]);
+          if (error && /pickup_date/.test(error.message || '')) {
+            const { pickup_date, ...legacy } = order;
+            ({ error } = await supabaseClient.from('permission_requests').insert([legacy]));
+          }
           if (error) { console.error(error); return showCustomAlert('تعذر إرسال الطلب، يرجى المحاولة لاحقاً'); }
         } else {
           localMockDB.orders.unshift({ ...order, id: uid('req'), created_at: new Date().toISOString() });
@@ -1036,7 +1121,8 @@
       document.getElementById('parent-summary-box').innerHTML = `
         <div><strong>الطلاب:</strong> ${selected.map(s => esc(s.name)).join('، ')}</div>
         <div><strong>المستلم:</strong> ${esc(pickupPerson)} ${authorized ? '' : '<span class="text-amber-700">(غير مسجل)</span>'}</div>
-        <div><strong>الوقت:</strong> ${esc(pickupTime)}</div>
+        <div><strong>اليوم والتاريخ:</strong> ${esc(fmtFullDate(keyToDate(pickupDate)))}</div>
+        <div><strong>الوقت:</strong> ${esc(fmtClock(pickupTime))}</div>
         <div><strong>السيارة:</strong> ${esc(carInfo)}</div>`;
       document.getElementById('parent-step-3').classList.add('hidden');
       document.getElementById('parent-step-4').classList.remove('hidden');
@@ -1044,6 +1130,7 @@
 
     function parentResetAll() {
       ['parent-national-id', 'parent-pickup-person', 'parent-pickup-time', 'parent-car-info'].forEach(id => document.getElementById(id).value = '');
+      resetPickupDate();
       document.getElementById('parent-step-4').classList.add('hidden');
       document.getElementById('parent-step-1').classList.remove('hidden');
     }
@@ -1061,13 +1148,65 @@
       } else {
         ordersCache = localMockDB.orders;
       }
+      renderOrdersTable();
+    }
+
+    function resetPickupDate() {
+      const el = document.getElementById('parent-pickup-date');
+      el.min = dayKey(0);
+      el.value = dayKey(0);
+      updatePickupDateLabel();
+    }
+    function updatePickupDateLabel() {
+      const v = document.getElementById('parent-pickup-date').value;
+      const lbl = document.getElementById('parent-pickup-date-label');
+      if (!v) { lbl.innerText = ''; return; }
+      const rel = relDayLabel(v);
+      lbl.innerText = (rel ? rel + ' · ' : '') + fmtFullDate(keyToDate(v));
+      lbl.className = 'text-[11px] font-bold mt-1 ' + (v < dayKey(0) ? 'text-rose-700' : 'text-emerald-700');
+    }
+
+    function onOrdersDateFilterChange() {
+      const f = document.getElementById('orders-date-filter').value;
+      const pick = document.getElementById('orders-date-pick');
+      pick.classList.toggle('hidden', f !== 'date');
+      if (f === 'date' && !pick.value) pick.value = dayKey(0);
+      renderOrdersTable();
+    }
+
+    function filteredOrders() {
+      const f = document.getElementById('orders-date-filter').value;
+      const pick = document.getElementById('orders-date-pick').value;
+      const q = (document.getElementById('orders-search').value || '').trim();
+      const t = dayKey(0);
+      return ordersCache.filter(o => {
+        const k = orderDayKey(o);
+        if (f === 'today' && k !== t) return false;
+        if (f === 'tomorrow' && k !== dayKey(1)) return false;
+        if (f === 'upcoming' && k <= t) return false;
+        if (f === 'past' && k >= t) return false;
+        if (f === 'date' && pick && k !== pick) return false;
+        return matchQuery(`${o.student_name} ${o.student_class} ${o.parent_name} ${o.parent_national_id} ${o.pickup_person} ${o.car_info}`, q);
+      }).sort((a, b) => {
+        const ka = orderDayKey(a) + (a.pickup_time || ''), kb = orderDayKey(b) + (b.pickup_time || '');
+        return f === 'past' || f === 'all' ? kb.localeCompare(ka) : ka.localeCompare(kb);
+      });
+    }
+
+    function renderOrdersTable() {
+      const now = new Date();
+      document.getElementById('today-banner').innerText = `📅 اليوم: ${fmtFullDate(now)}`;
+      const list = filteredOrders();
+      const f = document.getElementById('orders-date-filter');
+      document.getElementById('orders-count-label').innerText =
+        `${list.length} طلب · ${f.options[f.selectedIndex].text}` + (f.value === 'date' ? ` (${fmtFullDate(keyToDate(document.getElementById('orders-date-pick').value || dayKey(0)))})` : '');
 
       const tbody = document.getElementById('admin-orders-table');
       const emptyMsg = document.getElementById('no-orders-msg');
       tbody.innerHTML = '';
-      emptyMsg.classList.toggle('hidden', ordersCache.length > 0);
+      emptyMsg.classList.toggle('hidden', list.length > 0);
 
-      ordersCache.forEach(ord => {
+      list.forEach(ord => {
         let badge = "bg-amber-100 text-amber-800 border-amber-200";
         if (ord.status === S_READY) badge = "bg-blue-100 text-blue-800 border-blue-200";
         if (ord.status === S_DONE) badge = "bg-emerald-100 text-emerald-800 border-emerald-200";
@@ -1086,7 +1225,13 @@
             ${esc(ord.pickup_person || 'ولي الأمر')}
             ${unauth ? '<div class="text-[11px] font-black text-amber-700 mt-0.5">⚠️ غير مسجل - تحقق من الهوية</div>' : ''}
           </td>
-          <td class="p-4 font-mono font-bold">${esc(ord.pickup_time || 'الآن')}<div class="text-[11px] text-slate-400 font-sans">طُلب ${esc(fmtTime(ord.created_at))}</div></td>
+          <td class="p-4 whitespace-nowrap">${(() => {
+            const k = orderDayKey(ord), d = keyToDate(k), rel = relDayLabel(k);
+            return `<div class="font-black text-slate-800">${esc(fmtWeekday(d))} ${rel ? `<span class="text-[11px] px-1.5 py-0.5 rounded-md ${rel === 'اليوم' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">${rel}</span>` : ''}</div>
+                    <div class="text-[11px] font-bold text-slate-500">${esc(fmtHijri(d))}</div>
+                    <div class="text-[11px] font-bold text-slate-400">${esc(fmtGreg(d))}</div>`;
+          })()}</td>
+          <td class="p-4 whitespace-nowrap"><div class="font-black text-slate-800">${esc(fmtClock(ord.pickup_time))}</div><div class="text-[11px] text-slate-400 font-bold">أُرسل: ${esc(fmtDateTime(ord.created_at))}</div></td>
           <td class="p-4 text-slate-500">${esc(ord.car_info || '-')}</td>
           <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-black border whitespace-nowrap ${badge}">${esc(ord.status)}</span></td>
           <td class="p-4 text-center">
@@ -1121,7 +1266,7 @@
 
     function updateStats() {
       const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
-      set('stat-today', ordersCache.filter(o => isToday(o.created_at)).length);
+      set('stat-today', ordersCache.filter(o => orderDayKey(o) === dayKey(0)).length);
       set('stat-pending', ordersCache.filter(o => o.status === S_PENDING).length);
       set('stat-parents', parentsCache.filter(p => !p.is_former).length);
       const ids = new Set();
@@ -1278,7 +1423,7 @@
           ${orders.length ? `<div class="space-y-1.5">${orders.map(o => `
             <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 text-xs">
               <span class="font-bold text-slate-700">${esc(o.student_name)} ← ${esc(o.pickup_person)}</span>
-              <span class="font-bold text-slate-400 whitespace-nowrap">${esc(fmtTime(o.created_at))} · ${esc(o.status)}</span>
+              <span class="font-bold text-slate-400 whitespace-nowrap">${esc(orderWhen(o))} · ${esc(o.status)}</span>
             </div>`).join('')}</div>` : '<p class="text-xs text-slate-400 font-bold">لا توجد طلبات سابقة.</p>'}
         </div>
         <div class="flex gap-2 justify-end border-t pt-4">
@@ -1938,7 +2083,7 @@
           ${orders.length ? `<div class="space-y-1.5">${orders.map(o => `
             <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 text-xs gap-2">
               <span class="font-bold text-slate-700">المستلم: ${esc(o.pickup_person)}</span>
-              <span class="font-bold text-slate-400 whitespace-nowrap">${esc(fmtTime(o.created_at))} · ${esc(o.status)}</span>
+              <span class="font-bold text-slate-400 whitespace-nowrap">${esc(orderWhen(o))} · ${esc(o.status)}</span>
             </div>`).join('')}</div>` : '<p class="text-xs text-slate-400 font-bold">لا توجد طلبات سابقة.</p>'}
         </div>
         <div class="flex justify-end border-t pt-4">
@@ -2030,6 +2175,10 @@
     // ==========================================
     // 🚀 التهيئة
     // ==========================================
+    setInterval(() => {
+      if (isAdminAuthenticated && !document.getElementById('admin-panel-orders').classList.contains('hidden')) renderOrdersTable();
+    }, 60000);
+
     window.addEventListener('DOMContentLoaded', () => {
       initSupabase();
       resetAddForm();
